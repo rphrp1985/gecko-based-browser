@@ -1,14 +1,24 @@
 package com.prianshuprasad.myapplication
 
+import android.app.KeyguardManager
+import android.content.Context
+import android.content.DialogInterface
+import android.content.Intent
+import android.content.pm.PackageManager
+import android.hardware.biometrics.BiometricPrompt
+import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.os.CancellationSignal
 import android.view.KeyEvent
 import android.view.View
 import android.widget.EditText
 import android.widget.ProgressBar
 import android.widget.TextView
 import android.widget.Toast
+import androidx.annotation.RequiresApi
 import androidx.appcompat.app.ActionBar
+import androidx.core.app.ActivityCompat
 import org.mozilla.geckoview.GeckoRuntime
 import org.mozilla.geckoview.GeckoSession
 import org.mozilla.geckoview.GeckoSessionSettings
@@ -22,109 +32,96 @@ class MainActivity : AppCompatActivity() {
 
     private val geckoSession = GeckoSession()
 
+
+
+    private var cancellationSignal: CancellationSignal? = null
+
+    // create an authenticationCallback
+    private val authenticationCallback: BiometricPrompt.AuthenticationCallback
+        get() = @RequiresApi(Build.VERSION_CODES.P)
+        object : BiometricPrompt.AuthenticationCallback() {
+            // here we need to implement two methods
+            // onAuthenticationError and onAuthenticationSucceeded
+            // If the fingerprint is not recognized by the app it will call
+            // onAuthenticationError and show a toast
+            override fun onAuthenticationError(errorCode: Int, errString: CharSequence?) {
+                super.onAuthenticationError(errorCode, errString)
+                finish()
+//                notifyUser("Authentication Error : $errString")
+            }
+
+            // If the fingerprint is recognized by the app then it will call
+            // onAuthenticationSucceeded and show a toast that Authentication has Succeed
+            // Here you can also start a new activity after that
+            override fun onAuthenticationSucceeded(result: BiometricPrompt.AuthenticationResult?) {
+                super.onAuthenticationSucceeded(result)
+                notifyUser("Authentication Succeeded")
+                val intent = Intent(this@MainActivity,MainActivity2::class.java)
+                intent.putExtra("Auth",1)
+                startActivity(intent)
+                finish()
+
+                // or start a new Activity
+
+            }
+        }
+
+    @RequiresApi(Build.VERSION_CODES.P)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        setupGeckoView()
-        supportActionBar?.hide()
-        urlEditText= findViewById(R.id.location_view)
 
-//        setSupportActionBar(findViewById(R.id.toolbar))
-//        setupToolbar()
-        val settings = GeckoSessionSettings.Builder()
-            .usePrivateMode(true)
-            .useTrackingProtection(true)
-            .userAgentMode(USER_AGENT_MODE_MOBILE)
-            .userAgentOverride("")
-            .suspendMediaWhenInactive(true)
-            .allowJavascript(true)
+        checkBiometricSupport()
 
+            val biometricPrompt = BiometricPrompt.Builder(this)
+                .setTitle("Biometric Authentication")
+                .setDescription("Sign in to open browser")
+                .setNegativeButton("Cancel", this.mainExecutor, DialogInterface.OnClickListener { dialog, which ->
+                    notifyUser("Authentication Cancelled")
+                    finish()
+                }).build()
 
-
-
-        urlEditText.setOnEditorActionListener(object :
-            View.OnFocusChangeListener, TextView.OnEditorActionListener {
-
-            override fun onFocusChange(view: View?, hasFocus: Boolean) = Unit
-
-            override fun onEditorAction(
-                textView: TextView,
-                actionId: Int,
-                event: KeyEvent?
-            ): Boolean {
-
-                Toast.makeText(this@MainActivity,"ooo",Toast.LENGTH_LONG).show()
-                onCommit(textView.text.toString())
-//                textView.hideKeyboard()
-                return true
-            }
-        })
-
-
-
-
-
-
-
-    }
-    private fun setupGeckoView() {
-        // 1
-        geckoView = findViewById(R.id.geckoview)
-
-        // 2
-        val runtime = GeckoRuntime.create(this)
-        geckoSession.open(runtime)
-
-        // 3
-        geckoView.setSession(geckoSession)
-
-        // 4
-        geckoSession.loadUri("https://google.com")
-        progressView = findViewById(R.id.page_progress)
-        geckoSession.progressDelegate = createProgressDelegate()
-    }
-
-    private fun setupToolbar() {
-        setSupportActionBar(findViewById(R.id.toolbar))
-        supportActionBar?.displayOptions = ActionBar.DISPLAY_SHOW_CUSTOM
-    }
-
-    fun onCommit(text: String) {
-        if ((text.contains(".") ||
-                    text.contains(":")) &&
-            !text.contains(" ")) {
-            geckoSession.loadUri(text)
-        } else {
-            geckoSession.loadUri("https://www.google.com/search?q=$text" )
+            // start the authenticationCallback in mainExecutor
+            biometricPrompt.authenticate(getCancellationSignal(), mainExecutor, authenticationCallback)
         }
 
-        geckoView.requestFocus()
-    }
 
-    private fun createProgressDelegate(): GeckoSession.ProgressDelegate {
-        return object : GeckoSession.ProgressDelegate {
+    private fun getCancellationSignal(): CancellationSignal {
+        cancellationSignal = CancellationSignal()
+        cancellationSignal?.setOnCancelListener {
+            notifyUser("Authentication was Cancelled by the user")
 
-            override fun onPageStop(session: GeckoSession, success: Boolean) = Unit
-
-            override fun onSecurityChange(
-                session: GeckoSession,
-                securityInfo: GeckoSession.ProgressDelegate.SecurityInformation
-            ) = Unit
-
-            override fun onPageStart(session: GeckoSession, url: String) = Unit
-
-            override fun onProgressChange(session: GeckoSession, progress: Int) {
-                progressView.progress = progress
-
-                if (progress in 1..99) {
-                    progressView.visibility = View.VISIBLE
-                } else {
-                    progressView.visibility = View.GONE
-                }
-            }
+            finish()
         }
+        return cancellationSignal as CancellationSignal
     }
+
+    // it checks whether the app the app has fingerprint permission
+    @RequiresApi(Build.VERSION_CODES.M)
+    private fun checkBiometricSupport(): Boolean {
+        val keyguardManager = getSystemService(Context.KEYGUARD_SERVICE) as KeyguardManager
+        if (!keyguardManager.isDeviceSecure) {
+            notifyUser("Fingerprint authentication has not been enabled in settings")
+            return false
+        }
+        if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.USE_BIOMETRIC) != PackageManager.PERMISSION_GRANTED) {
+            notifyUser("Fingerprint Authentication Permission is not enabled")
+            return false
+        }
+        return if (packageManager.hasSystemFeature(PackageManager.FEATURE_FINGERPRINT)) {
+            true
+        } else true
+    }
+
+    // this is a toast method which is responsible for showing toast
+    // it takes a string as parameter
+    private fun notifyUser(message: String) {
+        Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
+    }
+
+
+
 
 
 

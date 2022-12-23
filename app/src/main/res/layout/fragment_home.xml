@@ -1,0 +1,162 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+
+
+    <com.sothree.slidinguppanel.SlidingUpPanelLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+        sothree:layout_constraintBottom_toBottomOf="parent"
+        sothree:layout_constraintLeft_toLeftOf="parent"
+        xmlns:sothree="http://schemas.android.com/apk/res-auto"
+        android:id="@+id/sliding_layout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="bottom"
+        sothree:umanoPanelHeight="68dp"
+        sothree:umanoShadowHeight="4dp"
+
+    tools:context=".fragments.HomeFragment"
+        >
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        >
+
+        <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+            android:id="@+id/swap_refresh"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <RelativeLayout
+
+                android:id="@+id/WebView"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical">
+
+
+                <View
+                    android:id="@+id/dummyView"
+
+                    android:layout_width="match_parent"
+                    android:layout_height="?android:actionBarSize"
+                    />
+
+                <Toolbar
+                    android:id="@+id/toolbar"
+                    android:layout_width="match_parent"
+                    android:layout_height="?android:actionBarSize">
+
+                    <ImageView
+                        android:id="@+id/multiFuntion_mode"
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:src="@drawable/ic_baseline_enhanced_encryption_24"
+                        />
+
+                    <EditText
+                        android:id="@+id/location_view"
+                        android:layout_width="match_parent"
+                        android:layout_marginLeft="20dp"
+                        android:layout_height="match_parent"
+                        android:background="@android:color/transparent"
+                        android:hint="google.co"
+
+                        android:importantForAutofill="no"
+                        android:inputType="text|textUri"
+                        android:selectAllOnFocus="true"
+                        android:singleLine="true" />
+
+
+                </Toolbar>
+
+                <Toolbar
+                    android:id="@+id/toolbar2"
+                    android:layout_width="match_parent"
+                    android:visibility="gone"
+                    android:layout_height="?android:actionBarSize">
+
+
+                    <EditText
+                        android:id="@+id/find_in_page"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:background="@android:color/transparent"
+                        android:hint="find in page"
+                        android:importantForAutofill="no"
+                        android:inputType="text"
+                        android:selectAllOnFocus="true"
+                        android:singleLine="true" />
+
+
+                </Toolbar>
+
+
+
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1.5dp"
+                    android:layout_alignBottom="@id/dummyView"
+                    android:alpha=".2"
+                    android:background="@color/black"
+                    />
+                <ProgressBar
+                    android:id="@+id/page_progress"
+                    style="@style/Base.Widget.AppCompat.ProgressBar.Horizontal"
+                    android:layout_width="match_parent"
+                    android:layout_height="3dp"
+                    android:layout_alignBottom="@id/dummyView" />
+
+                <org.mozilla.geckoview.GeckoView
+                    android:id="@+id/geckoview"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    tools:context=".MainActivity"
+                    android:layout_below="@id/dummyView"/>
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/adressbar_rcview"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:visibility="gone"
+                    tools:context=".MainActivity"
+                    android:layout_below="@id/dummyView"/>
+
+                <ImageView
+                    android:id="@+id/temp"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+
+                    />
+
+            </RelativeLayout>
+
+
+
+        </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+
+
+
+
+    </FrameLayout>
+
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/slideUpPanel_rcview"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/white"
+            />
+
+
+
+    </com.sothree.slidinguppanel.SlidingUpPanelLayout>
+
+
+
+
+
+
+
+

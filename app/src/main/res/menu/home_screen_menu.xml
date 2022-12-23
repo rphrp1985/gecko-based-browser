@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context=".MainActivity2"
+    >
+
+
+
+    <item
+        android:id="@+id/action_tabs"
+        android:showAsAction="always"
+        android:icon="@drawable/ic_baseline_backup_table_24"
+
+        android:title="Tabs">
+    </item>
+
+
+
+
+    <item
+        android:id="@+id/action_previous"
+    android:showAsAction="always"
+  android:icon="@drawable/ic_baseline_arrow_back_24"
+
+        android:title="message">
+    </item>
+
+
+
+
+
+
+
+    <item
+        android:id="@+id/action_new_tab"
+        app:showAsAction="never|withText"
+        android:icon="@drawable/ic_baseline_add_box_24"
+        android:title="Open new Tab">
+    </item>
+
+
+    <item
+        android:id="@+id/action_new_anon_tab"
+        app:showAsAction="never|withText"
+        android:title="Open new Anonymous Tab">
+    </item>
+
+    <item
+        android:id="@+id/action_bookmark"
+        app:showAsAction="never|withText"
+        android:title="Add this page to Bookmark">
+    </item>
+
+
+    <item
+        android:id="@+id/action_history"
+        android:icon="@drawable/ic_baseline_arrow_forward_24"
+        android:title="History and Bookmarks">
+    </item>
+    <item
+        android:id="@+id/action_save_pdf"
+        android:icon="@drawable/ic_baseline_arrow_forward_24"
+        android:title="Save as pdf">
+    </item>
+
+    <item
+        android:id="@+id/action_download"
+        android:icon="@drawable/ic_baseline_arrow_forward_24"
+        android:title="Downloads">
+    </item>
+
+    <item
+        android:id="@+id/action_share_page"
+        android:icon="@drawable/ic_baseline_arrow_forward_24"
+        android:title="Share page">
+    </item>
+
+    <item
+        android:id="@+id/action_snapshot"
+        android:icon="@drawable/ic_baseline_arrow_forward_24"
+        android:title="Take Snapshot">
+    </item>
+
+    <item
+        android:id="@+id/action_find"
+        android:icon="@drawable/ic_baseline_arrow_forward_24"
+        android:title="Find in page">
+    </item>
+
+    <item
+        android:id="@+id/action_source_code"
+        android:icon="@drawable/ic_baseline_arrow_forward_24"
+        android:title="View Source Code">
+    </item>
+
+    <item
+        android:id="@+id/action_save_offline"
+        android:icon="@drawable/ic_baseline_arrow_forward_24"
+        android:title="Save offline">
+    </item>
+    <item
+        android:id="@+id/action_view_offline"
+        android:icon="@drawable/ic_baseline_arrow_forward_24"
+        android:title="Offline pages">
+    </item>
+
+
+
+    <item
+        android:id="@+id/action_settings"
+        app:showAsAction="never|withText"
+        android:title="Settings">
+    </item>
+
+
+</menu>

@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:weightSum="10"
+    tools:context=".fragments.SiteNotificationFragment">
+
+    <Toolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="?android:actionBarSize"
+        android:title="Settings"
+        android:navigationIcon="@drawable/ic_baseline_arrow_back_24"
+        >
+
+
+    </Toolbar>
+
+<androidx.appcompat.widget.SwitchCompat
+    android:id="@+id/notificationSwitch"
+    android:layout_width="match_parent"
+    android:layout_height="70dp"
+    android:text="Notification"
+    android:textSize="18sp"
+    android:layout_marginLeft="15dp"
+    android:checked="false"
+    android:hint="Turn on/off Notification"
+    />
+
+
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rcview_site_notification"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="15dp"
+
+
+        />
+
+
+</LinearLayout>

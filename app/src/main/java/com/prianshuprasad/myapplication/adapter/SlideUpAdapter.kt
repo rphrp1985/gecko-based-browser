@@ -10,58 +10,44 @@ import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.recyclerview.widget.RecyclerView
+import com.prianshuprasad.myapplication.fragments.HomeFragment
+import com.prianshuprasad.myapplication.fragments.TabFragment
 import org.mozilla.geckoview.GeckoSession
 import org.mozilla.geckoview.GeckoView
 import org.mozilla.geckoview.Image
 
-class contestAdapter(private val listener: MainActivity2) :
-    RecyclerView.Adapter<contestAdapter.ViewHolder>() {
+class SlideUpAdapter(private val listener: HomeFragment) :
+    RecyclerView.Adapter<SlideUpAdapter.ViewHolder>() {
 
 
-    private val item: ArrayList<GeckoSession> = ArrayList()
+    private val item: ArrayList<String> = ArrayList()
 
     class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
-        var geckoView: GeckoView
-        var webName: TextView
-        var closeButton:ImageView
-        var image:ImageView
+
+        var searchSuggestion: TextView
+        var imageView:ImageView
 
 
         init {
 
-
-            geckoView=view.findViewById(R.id.tabWebView)
-            webName = view.findViewById(R.id.webName)
-            closeButton =view.findViewById(R.id.closeTab)
-            image= view.findViewById(R.id.image)
+            searchSuggestion = view.findViewById(R.id.search_suggestion)
+            imageView= view.findViewById(R.id.img1)
 
 
         }
-
-
-
-
     }
 
     // Create new views (invoked by the layout manager)
     override fun onCreateViewHolder(viewGroup: ViewGroup, viewType: Int): ViewHolder {
         // Create a new view, which defines the UI of the list item
         val view = LayoutInflater.from(viewGroup.context)
-            .inflate(R.layout.item_view, viewGroup, false)
+            .inflate(R.layout.item_search, viewGroup, false)
 
         val viewHolder= ViewHolder(view)
-        viewHolder.geckoView.setOnClickListener{
 
 
-            listener.openWeb(viewHolder.adapterPosition)
-        }
-
-        viewHolder.image.setOnClickListener {
-            listener.openWeb(viewHolder.adapterPosition)
-        }
-
-        viewHolder.closeButton.setOnClickListener {
-           listener.removeTab(viewHolder.adapterPosition)
+        view.setOnClickListener {
+            listener.onSlideUpOptionSelected(viewHolder.adapterPosition )
         }
 
 
@@ -75,17 +61,9 @@ class contestAdapter(private val listener: MainActivity2) :
         // contents of the view with that element
         val curritem = item[position]
 
+        viewHolder.searchSuggestion.text= curritem
+        viewHolder.imageView.setImageResource(R.drawable.ic_baseline_login_24)
 
-
-        viewHolder.webName.text = "WebPage ${viewHolder.adapterPosition+1}"
-
-        viewHolder.geckoView.setSession(curritem )
-
-        viewHolder.image.bringToFront()
-        viewHolder.closeButton.bringToFront()
-
-
-//        viewHolder.geckoView.releaseSession()
 
 
 
@@ -95,10 +73,10 @@ class contestAdapter(private val listener: MainActivity2) :
     override fun getItemCount() = item.size
 
 
-    fun updatenews(array:ArrayList<GeckoSession>){
-
+    fun update(array:ArrayList<String>){
         item.clear()
         item.addAll(array)
+
 
         notifyDataSetChanged()
 

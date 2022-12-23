@@ -1,0 +1,82 @@
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <PreferenceCategory app:title="Privacy">
+
+
+        <SwitchPreferenceCompat
+            app:key="HttpsOnly"
+            app:title="HTTPS Only Mode"
+
+            />
+
+        <SwitchPreferenceCompat
+            app:key="notTrack"
+            app:title="Do not Track"
+
+            />
+
+        <SwitchPreferenceCompat
+            app:key="historyMode"
+            app:title="History"
+
+            />
+
+        <SwitchPreferenceCompat
+            app:key="biometrics"
+            app:title="Biometric Authentication"
+
+            />
+
+        <SwitchPreferenceCompat
+            app:key="autocomplete"
+            app:title="Auto Complete Search"
+
+            />
+        <SwitchPreferenceCompat
+            app:key="autopasword"
+            app:title="Auto Save login info"
+
+            />
+        <Preference
+            app:key="viewlogins"
+            app:title="View Passwords"
+
+            />
+        <SwitchPreferenceCompat
+            app:key="autocard"
+            app:title="Auto Save Credit card details"
+
+            />
+
+        <Preference
+            app:key="viewcards"
+            app:title="View Saved Card Details"
+
+            />
+
+        <SwitchPreferenceCompat
+            app:key="autoadress"
+            app:title="Auto Save Address details"
+
+            />
+
+        <Preference
+            app:key="viewadress"
+            app:title="View Saved Address Details"
+
+            />
+
+
+
+
+        <Preference
+            app:key="clarData"
+            app:title="Delete Browsing Data"
+
+            />
+
+
+    </PreferenceCategory>
+
+</PreferenceScreen>

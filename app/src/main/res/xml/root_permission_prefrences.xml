@@ -1,0 +1,82 @@
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <PreferenceCategory app:title="Web Sites">
+
+    <Preference
+        android:title="All Sites"
+        android:key="all_sites"
+        android:icon="@drawable/ic_baseline_format_list_bulleted_24"
+        />
+
+
+    </PreferenceCategory>
+
+    <PreferenceCategory app:title="Permissions">
+
+        <Preference
+            app:key="site_cookies_permissions"
+            app:title="Cookies"
+            android:icon="@drawable/ic_baseline_cookie_24"
+
+            />
+        <Preference
+            app:key="site_javascript_permissions"
+            app:title="JavaScript"
+            android:icon="@drawable/ic_baseline_javascript_24"
+
+            />
+
+        <Preference
+            app:title="Notifications"
+            android:key="site_notifications_permissions"
+            android:icon="@drawable/ic_baseline_notifications_24"
+
+        />
+
+        <Preference
+            app:key="site_camera_permissions"
+            app:title="Camera"
+            android:icon="@drawable/ic_baseline_camera_alt_24"
+
+            />
+
+        <Preference
+            app:key="site_microphone_permissions"
+            app:title="Microphone"
+            android:icon="@drawable/ic_baseline_mic_24"
+
+            />
+
+        <Preference
+            app:key="site_location_permissions"
+            app:title="Location"
+            android:icon="@drawable/ic_baseline_location_on_24"
+
+            />
+
+        <Preference
+            app:key="site_media_autoplay_permissions"
+            app:title="Media AutoPlay"
+            android:icon="@drawable/ic_baseline_play_circle_24"
+
+            />
+        <Preference
+            app:key="site_storage_permissions"
+            app:title="Storage"
+            android:icon="@drawable/ic_baseline_sd_storage_24"
+
+            />
+        <Preference
+            app:key="site_desktop_permissions"
+            app:title="Desktop Mode"
+            android:icon="@drawable/ic_baseline_desktop_windows_24"
+
+            />
+
+
+    </PreferenceCategory>
+
+
+
+</PreferenceScreen>

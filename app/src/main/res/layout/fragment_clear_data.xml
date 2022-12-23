@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+   >
+    <Toolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="?android:actionBarSize"
+        android:title="Delete Browsing data"
+        android:navigationIcon="@drawable/ic_baseline_arrow_back_24"
+
+        />
+
+    <CheckBox
+        android:id="@+id/hist_site"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="History and site data"
+        android:textSize="16sp"
+
+        />
+    <CheckBox
+        android:id="@+id/cookies"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Cookies"
+        android:textSize="16sp"
+
+        />
+
+    <CheckBox
+        android:id="@+id/cache"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Cache"
+        android:textSize="16sp"
+
+        />
+    <CheckBox
+        android:id="@+id/site_set"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Site settings"
+        android:textSize="16sp"
+
+        />
+
+    <Button
+        android:id="@+id/delete"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="15dp"
+        android:text="delete browsing data"
+        />
+
+</LinearLayout>

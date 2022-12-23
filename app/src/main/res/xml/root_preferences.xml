@@ -1,0 +1,53 @@
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <PreferenceCategory app:title="Controls">
+
+
+        <ListPreference
+            app:defaultValue="Search Engine"
+            app:entries="@array/reply_entries"
+            app:entryValues="@array/reply_entries"
+            app:key="searchEngine"
+            app:title="Default Search Engine"
+            app:useSimpleSummaryProvider="true" />
+
+        <SwitchPreferenceCompat
+            app:key="savePassword"
+            app:title="BackGround Video Playback"
+
+            />
+
+        <SwitchPreferenceCompat
+            app:key="tabClosing"
+            app:title="Save Tabs"
+
+            />
+        <SwitchPreferenceCompat
+            app:key="swipeRefresh"
+            app:title="Swipe down to refresh"
+
+            />
+
+
+    </PreferenceCategory>
+
+    <PreferenceCategory app:title="Advance">
+
+
+        <Preference app:title="Privacy"
+            app:key="privacy">
+        </Preference>
+
+        <Preference
+            app:key="site_permissions"
+            app:title="Permissions"
+
+            />
+
+
+    </PreferenceCategory>
+
+
+
+</PreferenceScreen>
