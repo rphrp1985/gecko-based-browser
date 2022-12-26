@@ -65,6 +65,7 @@ class OfflinePagesFragment(listner:MainActivity2,offlinePageviewholder: OfflineP
 
     fun openPage(url:String){
         listner.homeFragment.addNewSession(url=url)
+        listner.onBackPressed()
     }
 
     fun delete(page:offlinePage){

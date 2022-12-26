@@ -286,6 +286,7 @@ class HomeFragment(browser: Browser, listener:MainActivity2) : Fragment() {
 
     }
 
+
     @SuppressLint("ResourceAsColor")
     fun openWeb(index:Int){
 
@@ -301,15 +302,7 @@ class HomeFragment(browser: Browser, listener:MainActivity2) : Fragment() {
             progressView.visibility= View.GONE
             browser.currIndex = index
 
-            if(browser.isAnonymousList[index]){
 
-
-            }else
-            {
-
-            }
-
-//            geckoView.releaseSession()
             val myNavigationDelegate:MyNavigationDelegate= browser.sessionList[index].navigationDelegate as MyNavigationDelegate
             geckoView.setSession(browser.sessionList[index])
 
@@ -322,16 +315,11 @@ class HomeFragment(browser: Browser, listener:MainActivity2) : Fragment() {
                     setAdressbar()
                 },300)
 
-
-//            Toast.makeText(listener,"open Web $Currurl",Toast.LENGTH_SHORT).show()
-
         }
-
 
     }
 
     fun addNewSession(isAnonymous:Boolean= false, url:String = "https://google.com"){
-//
 
         val permissionDelegate = MyPermissionDelegate(listener,browser)
         val contentDelegate:MyContentDelegate = MyContentDelegate(isAnonymous= isAnonymous,listener,browser)
@@ -342,11 +330,6 @@ class HomeFragment(browser: Browser, listener:MainActivity2) : Fragment() {
 
         var y= GeckoSessionSettings()
 
-
-
-
-
-
         if(isAnonymous) {
             val x = GeckoSessionSettings.Builder(y);
             x.usePrivateMode(true)
@@ -355,8 +338,8 @@ class HomeFragment(browser: Browser, listener:MainActivity2) : Fragment() {
         }
 
 
-
         val geckoSession = GeckoSession(y)
+
 
 
         geckoSession.permissionDelegate = permissionDelegate
@@ -365,18 +348,18 @@ class HomeFragment(browser: Browser, listener:MainActivity2) : Fragment() {
         geckoSession.contentBlockingDelegate= myContentBlockingDelegate
         geckoSession.progressDelegate = MyProgressDetegate(listener,browser)
         geckoSession.autofillDelegate
-geckoView.autofillEnabled= true
-
+        geckoView.autofillEnabled= true
 
 
         val runtime = GeckoRuntime.getDefault(requireContext())
         geckoSession.open(runtime)
 
+        runtime.settings.fontSizeFactor= browser.settingsData.fontSize
 
-//     geckoSession.saveA/sPdf()
+        runtime.settings.forceUserScalableEnabled = browser.settingsData.force_zoom==1
 
 
-runtime.autocompleteStorageDelegate= MyStorageDelegate(listener,browser)
+        runtime.autocompleteStorageDelegate= MyStorageDelegate(listener,browser)
 
         if(browser.settingsData.privNotTrack==1){
         geckoSession.settings.useTrackingProtection = true

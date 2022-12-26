@@ -1,37 +1,46 @@
 package com.prianshuprasad.myapplication.fragments
 
+import android.app.AlertDialog
+import android.content.DialogInterface
+import android.content.SharedPreferences
 import android.os.Bundle
-import android.widget.Toast
-import androidx.preference.ListPreference
-import androidx.preference.Preference
-import androidx.preference.PreferenceFragmentCompat
-import androidx.preference.SwitchPreferenceCompat
+import androidx.preference.*
 import com.prianshuprasad.myapplication.App
 import com.prianshuprasad.myapplication.Browser
 import com.prianshuprasad.myapplication.MainActivity2
 import com.prianshuprasad.myapplication.R
 import com.prianshuprasad.myapplication.siteDatabase.SiteDataviewholder
+import org.mozilla.geckoview.AllowOrDeny
 
-class SettingsFragment(browser: Browser,siteDataviewholder: SiteDataviewholder) : PreferenceFragmentCompat() {
+class SettingsFragment(browser: Browser,siteDataviewholder: SiteDataviewholder,prefs:SharedPreferences) : PreferenceFragmentCompat() {
 
     val browser= browser
     val siteDataviewholder = siteDataviewholder
+    val prefs= prefs
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
         setPreferencesFromResource(R.xml.root_preferences, rootKey)
 
-          val sitePermission = findPreference<Preference>("site_permissions")
+
+        val builder: AlertDialog.Builder = AlertDialog.Builder(requireContext())
+
+        val sitePermission = findPreference<Preference>("site_permissions")
         val searchEngine = findPreference<ListPreference>("searchEngine")
         val privacy = findPreference<Preference>("privacy")
         val swipe = findPreference<SwitchPreferenceCompat>("swipeRefresh")
         val savetabs =findPreference<SwitchPreferenceCompat>("tabClosing")
+        val accesbility = findPreference<Preference>("site_accesbility")
+        val nightMode= findPreference<SwitchPreferenceCompat>("night_mode")
+         var isNightMode= false
+
+        val myEdit: SharedPreferences.Editor = prefs.edit()
 
 
 
+        isNightMode= (activity as MainActivity2).getNightMode()
 
-
+        nightMode!!.isChecked= isNightMode
         savetabs!!.isChecked = (browser.settingsData.saveTabs==1)
         swipe!!.isChecked = (browser.settingsData.swipeRefresh==1)
-
 
         privacy!!.setOnPreferenceClickListener {
 
@@ -39,6 +48,13 @@ class SettingsFragment(browser: Browser,siteDataviewholder: SiteDataviewholder) 
             return@setOnPreferenceClickListener true
         }
 
+
+
+
+        accesbility!!.setOnPreferenceClickListener {
+            (activity as MainActivity2).openAccesbility()
+            return@setOnPreferenceClickListener true
+        }
 
         sitePermission!!.setOnPreferenceClickListener {
 
@@ -116,6 +132,43 @@ class SettingsFragment(browser: Browser,siteDataviewholder: SiteDataviewholder) 
             return@setOnPreferenceClickListener true
         }
 
+        nightMode!!.setOnPreferenceClickListener {
+
+            isNightMode= !isNightMode
+
+            myEdit.putBoolean("IS_Night",isNightMode)
+            myEdit.commit()
+
+
+            builder.setMessage("Changes Will Effect After restart of Browser")
+
+            builder.setTitle("Alert !")
+            builder.setCancelable(true)
+            builder.setPositiveButton("Restart Now",
+                DialogInterface.OnClickListener { dialog: DialogInterface?, which: Int ->
+
+                    (activity as MainActivity2).triggerRebirth(requireContext())
+
+
+                } as DialogInterface.OnClickListener)
+
+            builder.setNegativeButton("Restart Later",
+                DialogInterface.OnClickListener { dialog: DialogInterface, which: Int ->
+
+
+                } as DialogInterface.OnClickListener)
+
+
+            val alertDialog: AlertDialog = builder.create()
+
+            alertDialog.show()
+
+
+
+
+
+            return@setOnPreferenceClickListener true
+        }
 
 
 

@@ -29,6 +29,12 @@
 
             />
 
+        <SwitchPreferenceCompat
+            app:key="night_mode"
+            app:title="Night Mode"
+
+            />
+
 
     </PreferenceCategory>
 
@@ -38,6 +44,13 @@
         <Preference app:title="Privacy"
             app:key="privacy">
         </Preference>
+
+        <Preference
+            app:key="site_accesbility"
+            app:title="Accesbility"
+
+            />
+
 
         <Preference
             app:key="site_permissions"

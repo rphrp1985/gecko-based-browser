@@ -6,13 +6,13 @@ import android.annotation.SuppressLint
 import android.app.*
 import android.content.*
 import android.content.pm.PackageManager
+import android.content.res.Configuration
 import android.database.Cursor
 import android.hardware.biometrics.BiometricPrompt
 import android.net.Uri
 import android.os.*
 import android.os.StrictMode.VmPolicy
 import android.provider.OpenableColumns
-import android.util.Log
 import android.view.ContextMenu
 import android.view.ContextMenu.ContextMenuInfo
 import android.view.LayoutInflater
@@ -23,10 +23,12 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
+import androidx.preference.PreferenceManager
 import com.diebietse.webpage.downloader.DefaultFileSaver
 import com.diebietse.webpage.downloader.WebpageDownloader
 import com.prianshuprasad.myapplication.autocompleteDatabase.AutoCompleteData
@@ -51,7 +53,6 @@ import org.mozilla.geckoview.WebNotification
 import org.mozilla.geckoview.WebResponse
 import java.io.File
 import java.net.URL
-import javax.net.ssl.SSLEngineResult.HandshakeStatus
 import kotlin.concurrent.thread
 import kotlin.math.absoluteValue
 
@@ -80,10 +81,12 @@ class MainActivity2 : AppCompatActivity() {
     private lateinit var downloadDataviewholder: DownloadDataviewholder
     private lateinit var offlinePagesFragment: OfflinePagesFragment
     private lateinit var offlinePageviewholder: OfflinePageviewholder
+    private lateinit var accessbilityFragment: AccessbilityFragment
+    private lateinit var  prefs:SharedPreferences
     var BiometricsMode=""
     private lateinit var frameLayout: FrameLayout
     var fetch: Fetch? = null
-
+    private var isNightMode=false;
 
 
     private lateinit var promptInfo: androidx.biometric.BiometricPrompt.PromptInfo
@@ -143,8 +146,19 @@ private val queueCallback:ArrayList<GeckoSession.PermissionDelegate.Callback> = 
         }
 
 
+    override fun attachBaseContext(newBase: Context?) {
 
+         prefs = PreferenceManager.getDefaultSharedPreferences(newBase)
+        isNightMode = prefs.getBoolean("IS_Night", false)
+        if(isNightMode) {
+            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
+        }else
+        {
+            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
+        }
+        super.attachBaseContext(newBase)
 
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -152,16 +166,14 @@ private val queueCallback:ArrayList<GeckoSession.PermissionDelegate.Callback> = 
 
         supportActionBar?.hide()
 
-
         val builder = VmPolicy.Builder()
         StrictMode.setVmPolicy(builder.build())
 
         browser= Browser()
         siteDataviewholder= SiteDataviewholder(application)
-
         homeFragment= HomeFragment(browser,this)
         tabFragment = TabFragment(browser)
-        settingsFragment= SettingsFragment(browser,siteDataviewholder)
+        settingsFragment= SettingsFragment(browser,siteDataviewholder,prefs)
         historyBookmark= HistoryBookmark(this)
         notificationService= notificationServices()
         siteNotificationFragment = SiteNotificationFragment(this)
@@ -178,7 +190,7 @@ private val queueCallback:ArrayList<GeckoSession.PermissionDelegate.Callback> = 
         savedTabviewholder = SavedTabviewholder(application)
         offlinePageviewholder = OfflinePageviewholder(application)
         offlinePagesFragment= OfflinePagesFragment(this,offlinePageviewholder)
-
+        accessbilityFragment = AccessbilityFragment(this,siteDataviewholder)
 
         val fetchConfiguration: FetchConfiguration =
             FetchConfiguration.Builder(this)
@@ -186,9 +198,6 @@ private val queueCallback:ArrayList<GeckoSession.PermissionDelegate.Callback> = 
             .build()
 
         fetch = getInstance(fetchConfiguration)
-
-
-
 
           Historyviewholder(application).allnotes
 
@@ -211,10 +220,8 @@ private val queueCallback:ArrayList<GeckoSession.PermissionDelegate.Callback> = 
 
 
             }
-
-
                  if(isSettingsFound) {
-                     if(browser.settingsData.saveTabs==1)
+
 
                          recoverTabs()
                      return@observeForever
@@ -236,19 +243,15 @@ private val queueCallback:ArrayList<GeckoSession.PermissionDelegate.Callback> = 
                 openWebView()
         },500)
 
-
-
-
         autocompleteDataviewholder= AutocompleteDataviewholder(application)
-
         autocompleteDataviewholder.allnotes.observeForever {
-
-           browser.autocompleteList= it as ArrayList<AutoCompleteData>
+            browser.autocompleteList= it as ArrayList<AutoCompleteData>
 
         }
 
 
        bookmarkDataviewholder.allnotes.observeForever {
+
            browser.bookmarkMap.clear()
            for(data in it){
                browser.bookmarkMap.put(data.coreAdress,data)
@@ -270,7 +273,12 @@ private val queueCallback:ArrayList<GeckoSession.PermissionDelegate.Callback> = 
         }
 
 
+
+
     }
+
+    fun getNightMode()= isNightMode
+
     fun addDeafultWebsite(base_url:String){
         val sitedata= SiteData(coreAdress = base_url)
         siteDataviewholder.insertnote(sitedata)
@@ -280,7 +288,6 @@ private val queueCallback:ArrayList<GeckoSession.PermissionDelegate.Callback> = 
     private var isNew=true;
 
     fun recoverTabs(){
-
 
 
         Handler().postDelayed({
@@ -376,6 +383,21 @@ private val queueCallback:ArrayList<GeckoSession.PermissionDelegate.Callback> = 
         fragmentTransaction.addToBackStack(siteNotificationFragment.toString()) //add fra
     }
 
+    fun openAccesbility(){
+        val fragmentTransaction = supportFragmentManager.beginTransaction()
+        fragmentTransaction.setCustomAnimations(
+            R.anim.slide_in,
+            R.anim.slide_out,
+            R.anim.slide_in,
+            R.anim.slide_out
+        ).replace(R.id.main_activity_fragment,
+            accessbilityFragment).commit()// content_fragment is id of FrameLayout(XML file) where fragment will be displayed
+
+
+        fragmentTransaction.addToBackStack(siteNotificationFragment.toString()) //add fragment to stack
+
+    }
+
     fun openClearDataFragment(){
 
         val fragmentTransaction = supportFragmentManager.beginTransaction()
@@ -423,12 +445,39 @@ private val queueCallback:ArrayList<GeckoSession.PermissionDelegate.Callback> = 
     }
 
 
+    override fun onConfigurationChanged(newConfig: Configuration) {
+        super.onConfigurationChanged(newConfig)
+        val nightModeFlags = resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK
+//
+//        homeFragment= HomeFragment(browser,this)
+
+        if (nightModeFlags == Configuration.UI_MODE_NIGHT_NO){
+//            applyDayNight(OnDayNightStateChanged.DAY)
+        }else{
+//            applyDayNight(OnDayNightStateChanged.NIGHT)
+        }
+    }
+//    private fun applyDayNight(state: Int){
+//        if (state == OnDayNightStateChanged.DAY){
+//            //apply day colors for your views
+//        }else{
+//            //apply night colors for your views
+//        }
+//    }
+
+
+
+
+
     fun openWebView(){
-        val fragmentTransaction = supportFragmentManager.beginTransaction()
 
 
-        fragmentTransaction.replace(R.id.main_activity_fragment,
-            homeFragment,"Home_Fragment").commit()// content_fragment is id of FrameLayout(XML file) where fragment will be displayed
+            val fragmentTransaction = supportFragmentManager.beginTransaction()
+
+
+            fragmentTransaction.replace(R.id.main_activity_fragment,
+                homeFragment, "Home_Fragment")
+                .commit()// content_fragment is id of FrameLayout(XML file) where fragment will be displayed
 
 
     }
@@ -987,13 +1036,19 @@ fun getName(url:String):String{
             for (session in browser.sessionList) {
                 savedTabviewholder.insertnote(savedTab((session.navigationDelegate as MyNavigationDelegate).url))
             }
-
-
-
         super.onPause()
 
     }
 
+
+    fun triggerRebirth(context: Context) {
+        val packageManager = context.packageManager
+        val intent = packageManager.getLaunchIntentForPackage(context.packageName)
+        val componentName = intent!!.component
+        val mainIntent = Intent.makeRestartActivityTask(componentName)
+        context.startActivity(mainIntent)
+        Runtime.getRuntime().exit(0)
+    }
 
 
 

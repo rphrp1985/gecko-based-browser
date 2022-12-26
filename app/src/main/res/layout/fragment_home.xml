@@ -11,6 +11,7 @@
         android:id="@+id/sliding_layout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+    android:background="@color/background"
         android:gravity="bottom"
         sothree:umanoPanelHeight="68dp"
         sothree:umanoShadowHeight="4dp"
@@ -20,6 +21,7 @@
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:background="@color/background"
         >
 
         <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
@@ -32,12 +34,13 @@
                 android:id="@+id/WebView"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
+                android:background="@color/background"
                 android:orientation="vertical">
 
 
                 <View
                     android:id="@+id/dummyView"
-
+                    android:background="@color/text"
                     android:layout_width="match_parent"
                     android:layout_height="?android:actionBarSize"
                     />
@@ -45,6 +48,8 @@
                 <Toolbar
                     android:id="@+id/toolbar"
                     android:layout_width="match_parent"
+                    android:background="@color/background"
+                    android:titleTextColor="@color/text"
                     android:layout_height="?android:actionBarSize">
 
                     <ImageView
@@ -58,6 +63,7 @@
                         android:id="@+id/location_view"
                         android:layout_width="match_parent"
                         android:layout_marginLeft="20dp"
+                        android:textColor="@color/text"
                         android:layout_height="match_parent"
                         android:background="@android:color/transparent"
                         android:hint="google.co"
@@ -74,6 +80,8 @@
                     android:id="@+id/toolbar2"
                     android:layout_width="match_parent"
                     android:visibility="gone"
+                    android:background="@color/background"
+                    android:titleTextColor="@color/text"
                     android:layout_height="?android:actionBarSize">
 
 
@@ -83,6 +91,8 @@
                         android:layout_height="match_parent"
                         android:background="@android:color/transparent"
                         android:hint="find in page"
+                        android:textColor="@color/text"
+
                         android:importantForAutofill="no"
                         android:inputType="text"
                         android:selectAllOnFocus="true"
@@ -99,7 +109,8 @@
                     android:layout_height="1.5dp"
                     android:layout_alignBottom="@id/dummyView"
                     android:alpha=".2"
-                    android:background="@color/black"
+
+                    android:background="@color/text"
                     />
                 <ProgressBar
                     android:id="@+id/page_progress"
@@ -145,8 +156,9 @@
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/slideUpPanel_rcview"
             android:layout_width="match_parent"
+
             android:layout_height="wrap_content"
-            android:background="@color/white"
+            android:background="@color/background"
             />
 
 

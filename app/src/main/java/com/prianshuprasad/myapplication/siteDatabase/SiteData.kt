@@ -34,6 +34,9 @@ data class SiteData(@PrimaryKey() val coreAdress:String="", @ColumnInfo(name="pe
                     @ColumnInfo(name="autocard") var autoSaveCard:Int =1,
                     @ColumnInfo(name="autoaddress") var autoSaveAdress:Int =1,
                     @ColumnInfo(name="tabsave") var saveTabs:Int =0,
+                    @ColumnInfo(name="font_size") var fontSize:Float =1f,
+
+                    @ColumnInfo(name="force_zoom") var force_zoom:Int =0,
 
                     @ColumnInfo(name="swipeRefresh") var swipeRefresh:Int =1,
                     @ColumnInfo(name="SettingsDefaultSearchname") var defEngineName:String ="GOOGLE",

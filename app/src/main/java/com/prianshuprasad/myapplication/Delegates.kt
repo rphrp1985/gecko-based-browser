@@ -861,14 +861,84 @@ class MyPromptDelegate(listner: MainActivity2,browser: Browser):GeckoSession.Pro
         session: GeckoSession, prompt: PopupPrompt,
     ): GeckoResult<PromptResponse?>? {
 
-//        Toast.makeText(listner,"PromtDelegate onPopup",Toast.LENGTH_SHORT).show()
+
+        val builder: AlertDialog.Builder = AlertDialog.Builder(listner)
+
+        builder.setMessage("Site is requesting to open pop up window")
+
+        builder.setTitle("Alert !")
+        builder.setCancelable(true)
+        builder.setPositiveButton("Allow",
+            DialogInterface.OnClickListener { dialog: DialogInterface?, which: Int ->
+
+                listner.homeFragment.addNewSession(url = prompt.targetUri.toString())
+                listner.notifyUser("Opening pop up in new tab")
+               prompt.confirm(AllowOrDeny.ALLOW)
+
+            } as DialogInterface.OnClickListener)
+
+        builder.setNegativeButton("Deny",
+            DialogInterface.OnClickListener { dialog: DialogInterface, which: Int ->
+
+                listner.notifyUser("Pop up blocked")
+                prompt.confirm(AllowOrDeny.ALLOW)
+
+            } as DialogInterface.OnClickListener)
+
+
+        val alertDialog: AlertDialog = builder.create()
+
+        alertDialog.show()
+
+
         return null
     }
+
+
+
+    override fun onFilePrompt(
+        session: GeckoSession,
+        prompt: GeckoSession.PromptDelegate.FilePrompt
+    ): GeckoResult<PromptResponse>? {
+        return super.onFilePrompt(session, prompt)
+    }
+
+    override fun onDateTimePrompt(
+        session: GeckoSession,
+        prompt: GeckoSession.PromptDelegate.DateTimePrompt
+    ): GeckoResult<PromptResponse>? {
+        return super.onDateTimePrompt(session, prompt)
+    }
+
+
+
 
     override fun onAlertPrompt(
         session: GeckoSession,
         prompt: GeckoSession.PromptDelegate.AlertPrompt
     ): GeckoResult<PromptResponse>? {
+
+
+        val builder: AlertDialog.Builder = AlertDialog.Builder(listner)
+
+        builder.setMessage("${prompt.message}")
+
+        builder.setTitle("${prompt.title}")
+        builder.setCancelable(true)
+        builder.setPositiveButton("ok",
+            DialogInterface.OnClickListener { dialog: DialogInterface?, which: Int ->
+
+
+
+            } as DialogInterface.OnClickListener)
+
+        val alertDialog: AlertDialog = builder.create()
+
+        alertDialog.show()
+
+
+
+
         return super.onAlertPrompt(session, prompt)
     }
 
