@@ -300,10 +300,10 @@ class MyContentDelegate(var isAnonymous:Boolean=false, listner: MainActivity2,br
     }
 
     override fun onCrash(session: GeckoSession) {
+
         browser.SesssionSateMap[session]?.let {
             session.restoreState(it)
         }
-
 
         super.onCrash(session)
     }

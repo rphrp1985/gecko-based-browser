@@ -32,6 +32,8 @@ import com.prianshuprasad.myapplication.viewmodels.HomeViewModel
 import com.sothree.slidinguppanel.SlidingUpPanelLayout
 import kotlinx.android.synthetic.main.fragment_home.*
 import org.mozilla.geckoview.*
+import org.mozilla.geckoview.GeckoRuntimeSettings.COLOR_SCHEME_DARK
+import org.mozilla.geckoview.GeckoRuntimeSettings.COLOR_SCHEME_SYSTEM
 import org.mozilla.geckoview.GeckoSession.*
 import java.io.*
 import java.net.URL
@@ -357,6 +359,11 @@ class HomeFragment(browser: Browser, listener:MainActivity2) : Fragment() {
         runtime.settings.fontSizeFactor= browser.settingsData.fontSize
 
         runtime.settings.forceUserScalableEnabled = browser.settingsData.force_zoom==1
+
+        if(listener.getNightMode())
+        runtime.settings.preferredColorScheme = COLOR_SCHEME_DARK
+
+
 
 
         runtime.autocompleteStorageDelegate= MyStorageDelegate(listener,browser)

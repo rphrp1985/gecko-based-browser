@@ -51,7 +51,10 @@ import kotlinx.android.synthetic.main.item_history.*
 import org.mozilla.geckoview.GeckoSession
 import org.mozilla.geckoview.WebNotification
 import org.mozilla.geckoview.WebResponse
+import java.io.ByteArrayOutputStream
 import java.io.File
+import java.io.IOException
+import java.io.ObjectOutputStream
 import java.net.URL
 import kotlin.concurrent.thread
 import kotlin.math.absoluteValue
@@ -169,7 +172,10 @@ private val queueCallback:ArrayList<GeckoSession.PermissionDelegate.Callback> = 
         val builder = VmPolicy.Builder()
         StrictMode.setVmPolicy(builder.build())
 
-        browser= Browser()
+            browser = Browser()
+
+
+
         siteDataviewholder= SiteDataviewholder(application)
         homeFragment= HomeFragment(browser,this)
         tabFragment = TabFragment(browser)
@@ -1050,7 +1056,21 @@ fun getName(url:String):String{
         Runtime.getRuntime().exit(0)
     }
 
+    override fun onSaveInstanceState(outState: Bundle) {
 
+        super.onSaveInstanceState(outState)
+
+
+        outState.putParcelable("browser",browser)
+//        outState.putByteArray("l",object2Bytes(browser))
+
+
+    }
+
+    override fun onRestoreInstanceState(savedInstanceState: Bundle) {
+        super.onRestoreInstanceState(savedInstanceState)
+            browser= savedInstanceState?.getParcelable<Browser>("browser")!!
+    }
 
 
 
