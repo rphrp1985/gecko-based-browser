@@ -49,12 +49,10 @@ import com.tonyodev.fetch2.*
 import com.tonyodev.fetch2.Fetch.Impl.getInstance
 import kotlinx.android.synthetic.main.item_history.*
 import org.mozilla.geckoview.GeckoSession
+import org.mozilla.geckoview.MediaSession
 import org.mozilla.geckoview.WebNotification
 import org.mozilla.geckoview.WebResponse
-import java.io.ByteArrayOutputStream
 import java.io.File
-import java.io.IOException
-import java.io.ObjectOutputStream
 import java.net.URL
 import kotlin.concurrent.thread
 import kotlin.math.absoluteValue
@@ -70,7 +68,7 @@ class MainActivity2 : AppCompatActivity() {
     lateinit var notificationService: notificationServices
     lateinit var siteNotificationFragment: SiteNotificationFragment
     lateinit var permissionSettingsFragment: PermissionSettingsFragment
-    private lateinit var notificationManager: NotificationManagerCompat
+    lateinit var notificationManager: NotificationManagerCompat
     private var sitePermissionMode:String=""
     private lateinit var siteDataviewholder: SiteDataviewholder
     private lateinit var settingsPrivacyFragment: SettingsPrivacyFragment
@@ -588,7 +586,7 @@ private val queueCallback:ArrayList<GeckoSession.PermissionDelegate.Callback> = 
 
     }
 
-    private fun createNotificationChannel(channelId:String) {
+    fun createNotificationChannel(channelId:String) {
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val name = channelId
@@ -1057,21 +1055,53 @@ fun getName(url:String):String{
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
-
         super.onSaveInstanceState(outState)
-
-
         outState.putParcelable("browser",browser)
-//        outState.putByteArray("l",object2Bytes(browser))
-
-
     }
 
     override fun onRestoreInstanceState(savedInstanceState: Bundle) {
         super.onRestoreInstanceState(savedInstanceState)
             browser= savedInstanceState?.getParcelable<Browser>("browser")!!
+
+    }
+
+
+    fun mNotification(mediaSessiono: MediaSession) {
+
+        createNotificationChannel("media")
+         val intent = Intent()
+          intent.setAction("pause")
+
+        val mediaStyle: androidx.media.app.NotificationCompat.MediaStyle =
+            androidx.media.app.NotificationCompat.MediaStyle()
+
+
+        val pendingIntent: PendingIntent = PendingIntent.getBroadcast(
+            this, 0,intent,0)
+        val filter = IntentFilter("pause")
+//        registerReceiver( MyBrodCastReciver(this, mediaSessiono, this),filter)
+
+        notification =
+            NotificationCompat.Builder(this, "media")
+                .setSmallIcon(R.drawable.ic_baseline_web_24)
+                .setStyle(mediaStyle)
+                .setOngoing(true)
+                .setContentTitle("Media Playing")
+                .setContentText("Video playing")
+
+
+       val id =(0..1000000).random()
+        notificationManager.notify(id, notification.build())
+
+        notificationManager.cancel(id)
+
+
+
+
     }
 
 
 
 }
+
+

@@ -356,6 +356,8 @@ class HomeFragment(browser: Browser, listener:MainActivity2) : Fragment() {
         val runtime = GeckoRuntime.getDefault(requireContext())
         geckoSession.open(runtime)
 
+        geckoSession.mediaSessionDelegate = MyMediaSessionDelegate(listener)
+
         runtime.settings.fontSizeFactor= browser.settingsData.fontSize
 
         runtime.settings.forceUserScalableEnabled = browser.settingsData.force_zoom==1

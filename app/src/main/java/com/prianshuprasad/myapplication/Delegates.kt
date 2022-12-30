@@ -9,9 +9,10 @@ import android.app.Application
 import android.content.Context
 import android.content.DialogInterface
 import android.graphics.Bitmap
-import android.widget.Toast
 import androidx.annotation.AnyThread
 import androidx.annotation.UiThread
+import androidx.lifecycle.MutableLiveData
+import com.prianshuprasad.myapplication.MediaNotification.MediaNotification
 import com.prianshuprasad.myapplication.autocompleteDatabase.AutoCompleteData
 import com.prianshuprasad.myapplication.autocompleteDatabase.AutocompleteDataviewholder
 import com.prianshuprasad.myapplication.histroryDataBase.BrowsingHistory
@@ -742,6 +743,8 @@ public  class  MyPermissionDelegate(listner:MainActivity2,browser: Browser): Gec
 
 class MyMediaDelegate:GeckoSession.MediaDelegate{
 
+
+
     override fun onRecordingStatusChanged(
         session: GeckoSession,
         devices: Array<out GeckoSession.MediaDelegate.RecordingDevice>,
@@ -1164,10 +1167,7 @@ class MyProgressDetegate(listner: MainActivity2,browser: Browser):GeckoSession.P
         session: GeckoSession,
         sessionState: GeckoSession.SessionState
     ) {
-
     browser.SesssionSateMap[session]= sessionState
-
-
     }
 
 
@@ -1340,4 +1340,59 @@ class MyStorageDelegate(listner: MainActivity2,browser: Browser):Autocomplete.St
     }
 
 }
+
+
+class MyMediaSessionDelegate(listner: MainActivity2) : MediaSession.Delegate{
+    val listner= listner
+    val isplaying = MutableLiveData<Boolean>(false)
+    val mediaNotification= MediaNotification(listner,isplaying)
+
+
+    override fun onMetadata(
+        session: GeckoSession,
+        mediaSession: MediaSession,
+        meta: MediaSession.Metadata
+    ) {
+        mediaNotification.setMeta(meta.title.toString(),session,meta.artwork)
+
+        super.onMetadata(session, mediaSession, meta)
+    }
+
+    override fun onActivated(session: GeckoSession, mediaSession: MediaSession) {
+      listner.mNotification(mediaSession)
+        mediaNotification.ShowNotification(session,mediaSession)
+        super.onActivated(session, mediaSession)
+    }
+
+    override fun onDeactivated(session: GeckoSession, mediaSession: MediaSession) {
+//        listner.notifyUser("deactivated")
+        mediaNotification.onDeactivate()
+        super.onDeactivated(session, mediaSession)
+    }
+
+    override fun onPause(session: GeckoSession, mediaSession: MediaSession) {
+        isplaying.value= false
+//        listner.notifyUser("onPause")
+        super.onPause(session, mediaSession)
+    }
+
+    override fun onPlay(session: GeckoSession, mediaSession: MediaSession) {
+        isplaying.value= true
+//        listner.notifyUser("onPlay")
+        super.onPlay(session, mediaSession)
+    }
+
+    override fun onStop(session: GeckoSession, mediaSession: MediaSession) {
+        isplaying.value= false
+//        listner.notifyUser("onStop")
+        super.onStop(session, mediaSession)
+    }
+
+
+
+
+}
+
+
+
 
