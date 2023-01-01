@@ -18,6 +18,7 @@ import android.view.ContextMenu.ContextMenuInfo
 import android.view.LayoutInflater
 import android.view.MenuItem
 import android.view.View
+import android.webkit.MimeTypeMap
 import android.widget.FrameLayout
 import android.widget.TextView
 import android.widget.Toast
@@ -28,7 +29,9 @@ import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
+import androidx.core.net.toUri
 import androidx.preference.PreferenceManager
+import androidx.room.util.FileUtil
 import com.diebietse.webpage.downloader.DefaultFileSaver
 import com.diebietse.webpage.downloader.WebpageDownloader
 import com.prianshuprasad.myapplication.autocompleteDatabase.AutoCompleteData
@@ -48,11 +51,8 @@ import com.prianshuprasad.myapplication.siteDatabase.SiteDataviewholder
 import com.tonyodev.fetch2.*
 import com.tonyodev.fetch2.Fetch.Impl.getInstance
 import kotlinx.android.synthetic.main.item_history.*
-import org.mozilla.geckoview.GeckoSession
-import org.mozilla.geckoview.MediaSession
-import org.mozilla.geckoview.WebNotification
-import org.mozilla.geckoview.WebResponse
-import java.io.File
+import org.mozilla.geckoview.*
+import java.io.*
 import java.net.URL
 import kotlin.concurrent.thread
 import kotlin.math.absoluteValue
@@ -1095,10 +1095,118 @@ fun getName(url:String):String{
 
         notificationManager.cancel(id)
 
-
-
-
     }
+
+    private  var promptFile:GeckoSession.PromptDelegate.FilePrompt?= null
+    private var responce:GeckoResult<GeckoSession.PromptDelegate.PromptResponse>? = null
+
+     fun selectFile(
+         prompt: GeckoSession.PromptDelegate.FilePrompt,
+         responcei: GeckoResult<GeckoSession.PromptDelegate.PromptResponse>?,
+     ) {
+         PermissionManager(arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE), 9)
+         PermissionManager(arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE), 9)
+
+
+         responce= responcei
+        val intent = Intent()
+         promptFile = prompt
+            intent.action = Intent.ACTION_GET_CONTENT
+
+         intent.type="*/*"
+
+         startActivityForResult(intent, 10)
+    }
+
+    var temp:String=""
+
+     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+
+         if( requestCode==10){
+
+             if(promptFile!=null && data!=null && responce!=null) {
+
+                 temp= data.data?.let { fileFromContentUri(this, it) }?.toURI().toString()
+
+                data?.data?.let {
+
+                     responce!!.complete( promptFile!!.confirm(this, temp.toUri()))
+
+                 }
+
+
+             }
+
+         }
+
+
+         super.onActivityResult(requestCode, resultCode, data)
+
+
+     }
+
+///------------   On file prompt Helper---------------------------------------------
+    fun fileFromContentUri(context: Context, contentUri: Uri): File {
+        // Preparing Temp file name
+        val fileExtension = getFileExtension(context, contentUri)
+        val fileName = "temp_file" + if (fileExtension != null) ".$fileExtension" else ""
+
+        // Creating Temp file
+        val tempFile = File(context.cacheDir, fileName)
+        tempFile.createNewFile()
+
+        try {
+            val oStream = FileOutputStream(tempFile)
+            val inputStream = context.contentResolver.openInputStream(contentUri)
+
+            inputStream?.let {
+                copy(inputStream, oStream)
+            }
+
+            oStream.flush()
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+
+        return tempFile
+    }
+
+    private fun getFileExtension(context: Context, uri: Uri): String? {
+        val fileType: String? = context.contentResolver.getType(uri)
+        return MimeTypeMap.getSingleton().getExtensionFromMimeType(fileType)
+    }
+
+    @Throws(IOException::class)
+    private fun copy(source: InputStream, target: OutputStream) {
+        val buf = ByteArray(8192)
+        var length: Int
+        while (source.read(buf).also { length = it } > 0) {
+            target.write(buf, 0, length)
+        }
+    }
+
+
+//------------------------------------------------------------------------------
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

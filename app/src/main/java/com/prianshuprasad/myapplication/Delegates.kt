@@ -9,8 +9,10 @@ import android.app.Application
 import android.content.Context
 import android.content.DialogInterface
 import android.graphics.Bitmap
+import android.net.Uri
 import androidx.annotation.AnyThread
 import androidx.annotation.UiThread
+import androidx.core.net.toUri
 import androidx.lifecycle.MutableLiveData
 import com.prianshuprasad.myapplication.MediaNotification.MediaNotification
 import com.prianshuprasad.myapplication.autocompleteDatabase.AutoCompleteData
@@ -893,9 +895,23 @@ class MyPromptDelegate(listner: MainActivity2,browser: Browser):GeckoSession.Pro
 
         alertDialog.show()
 
+        return GeckoResult.fromValue(prompt.confirm(AllowOrDeny.ALLOW))
 
-        return null
     }
+
+
+    override fun onChoicePrompt(
+        session: GeckoSession,
+        prompt: GeckoSession.PromptDelegate.ChoicePrompt
+    ): GeckoResult<PromptResponse>? {
+
+        listner.notifyUser("choice prompt")
+
+        return super.onChoicePrompt(session, prompt)
+    }
+
+
+
 
 
 
@@ -903,13 +919,19 @@ class MyPromptDelegate(listner: MainActivity2,browser: Browser):GeckoSession.Pro
         session: GeckoSession,
         prompt: GeckoSession.PromptDelegate.FilePrompt
     ): GeckoResult<PromptResponse>? {
-        return super.onFilePrompt(session, prompt)
+        val responce:  GeckoResult<PromptResponse>? = GeckoResult<PromptResponse>()
+
+       listner.selectFile(prompt,responce)
+        return responce
+
     }
 
     override fun onDateTimePrompt(
         session: GeckoSession,
         prompt: GeckoSession.PromptDelegate.DateTimePrompt
     ): GeckoResult<PromptResponse>? {
+
+
         return super.onDateTimePrompt(session, prompt)
     }
 
