@@ -31,9 +31,11 @@ import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
 import androidx.core.net.toUri
 import androidx.preference.PreferenceManager
-import androidx.room.util.FileUtil
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.diebietse.webpage.downloader.DefaultFileSaver
 import com.diebietse.webpage.downloader.WebpageDownloader
+import com.prianshuprasad.myapplication.adapter.ChoicePromptAdapter
 import com.prianshuprasad.myapplication.autocompleteDatabase.AutoCompleteData
 import com.prianshuprasad.myapplication.autocompleteDatabase.AutocompleteDataviewholder
 import com.prianshuprasad.myapplication.bookmarkDatabase.BookmarkDataviewholder
@@ -1098,7 +1100,7 @@ fun getName(url:String):String{
     }
 
     private  var promptFile:GeckoSession.PromptDelegate.FilePrompt?= null
-    private var responce:GeckoResult<GeckoSession.PromptDelegate.PromptResponse>? = null
+    private var responceFile:GeckoResult<GeckoSession.PromptDelegate.PromptResponse>? = null
 
      fun selectFile(
          prompt: GeckoSession.PromptDelegate.FilePrompt,
@@ -1108,7 +1110,7 @@ fun getName(url:String):String{
          PermissionManager(arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE), 9)
 
 
-         responce= responcei
+         responceFile= responcei
         val intent = Intent()
          promptFile = prompt
             intent.action = Intent.ACTION_GET_CONTENT
@@ -1124,13 +1126,13 @@ fun getName(url:String):String{
 
          if( requestCode==10){
 
-             if(promptFile!=null && data!=null && responce!=null) {
+             if(promptFile!=null && data!=null && responceFile!=null) {
 
                  temp= data.data?.let { fileFromContentUri(this, it) }?.toURI().toString()
 
                 data?.data?.let {
 
-                     responce!!.complete( promptFile!!.confirm(this, temp.toUri()))
+                     responceFile!!.complete( promptFile!!.confirm(this, temp.toUri()))
 
                  }
 
@@ -1139,9 +1141,7 @@ fun getName(url:String):String{
 
          }
 
-
          super.onActivityResult(requestCode, resultCode, data)
-
 
      }
 
@@ -1187,6 +1187,49 @@ fun getName(url:String):String{
 
 
 //------------------------------------------------------------------------------
+
+    fun choicePrompt(
+        prompt: GeckoSession.PromptDelegate.ChoicePrompt,
+        response: GeckoResult<GeckoSession.PromptDelegate.PromptResponse>
+    ) {
+
+        val li = LayoutInflater.from(this)
+        val promptsView: View = li.inflate(R.layout.layout_choice_prompt, null)
+
+
+        val rcview= promptsView.findViewById<RecyclerView>(R.id.rcView_choicePrompt)
+
+        val secInfo = (browser.sessionList[browser.currIndex].progressDelegate as MyProgressDetegate).securityInfo
+
+        rcview.layoutManager= LinearLayoutManager(this)
+        val alertDialogBuilder: AlertDialog.Builder = AlertDialog.Builder(this)
+
+        alertDialogBuilder.setView(promptsView)
+
+        alertDialogBuilder
+            .setCancelable(true)
+
+            .setNegativeButton("Cancel",
+                DialogInterface.OnClickListener { dialog, id -> dialog.cancel()
+                    response.complete(prompt.dismiss())
+                })
+
+        val alertDialog: AlertDialog = alertDialogBuilder.create()
+
+        alertDialog.show()
+
+        val adapter= ChoicePromptAdapter(this, prompt,response,alertDialog)
+
+        rcview.adapter= adapter
+
+        adapter.update(prompt.choices)
+
+    }
+
+
+
+
+
 
 
 

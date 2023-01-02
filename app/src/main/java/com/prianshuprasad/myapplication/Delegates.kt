@@ -3,16 +3,23 @@ package com.prianshuprasad.myapplication
 //import com.prianshuprasad.myapplication.histroryDataBase.BrowsingHistory
 //import com.prianshuprasad.myapplication.histroryDataBase.Historyviewholder
 
+import android.R
 import android.app.Activity
 import android.app.AlertDialog
 import android.app.Application
 import android.content.Context
 import android.content.DialogInterface
 import android.graphics.Bitmap
-import android.net.Uri
+import android.os.Build
+import android.text.format.DateFormat
+import android.view.InflateException
+import android.view.LayoutInflater
+import android.widget.DatePicker
+import android.widget.LinearLayout
+import android.widget.ScrollView
+import android.widget.TimePicker
 import androidx.annotation.AnyThread
 import androidx.annotation.UiThread
-import androidx.core.net.toUri
 import androidx.lifecycle.MutableLiveData
 import com.prianshuprasad.myapplication.MediaNotification.MediaNotification
 import com.prianshuprasad.myapplication.autocompleteDatabase.AutoCompleteData
@@ -26,11 +33,13 @@ import org.mozilla.geckoview.*
 import org.mozilla.geckoview.ContentBlocking.*
 import org.mozilla.geckoview.GeckoSession.HistoryDelegate.HistoryList
 import org.mozilla.geckoview.GeckoSession.PermissionDelegate.*
-import org.mozilla.geckoview.GeckoSession.PromptDelegate.PopupPrompt
-import org.mozilla.geckoview.GeckoSession.PromptDelegate.PromptResponse
+import org.mozilla.geckoview.GeckoSession.PromptDelegate.*
 import org.mozilla.geckoview.GeckoSession.SelectionActionDelegate.ClipboardPermission
 import org.mozilla.geckoview.GeckoSession.VisitFlags
 import java.net.URL
+import java.text.ParseException
+import java.text.SimpleDateFormat
+import java.util.*
 
 
 class Delegates {
@@ -126,7 +135,7 @@ public class MyNavigationDelegate(listner: MainActivity2,browser: Browser) : Gec
     override fun onLoadError(
         session: GeckoSession,
         uri: String?,
-        error: WebRequestError
+        error: WebRequestError,
     ): GeckoResult<String>? {
 
          val s:String? =""
@@ -315,7 +324,7 @@ class MyContentDelegate(var isAnonymous:Boolean=false, listner: MainActivity2,br
         session: GeckoSession,
         screenX: Int,
         screenY: Int,
-        element: GeckoSession.ContentDelegate.ContextElement
+        element: GeckoSession.ContentDelegate.ContextElement,
     ) {
 
         listner.ShowUrLContextMenu(element)
@@ -902,12 +911,17 @@ class MyPromptDelegate(listner: MainActivity2,browser: Browser):GeckoSession.Pro
 
     override fun onChoicePrompt(
         session: GeckoSession,
-        prompt: GeckoSession.PromptDelegate.ChoicePrompt
+        prompt: GeckoSession.PromptDelegate.ChoicePrompt,
     ): GeckoResult<PromptResponse>? {
 
-        listner.notifyUser("choice prompt")
+        val response= GeckoResult<PromptResponse>()
 
-        return super.onChoicePrompt(session, prompt)
+        listner.choicePrompt(prompt,response)
+
+
+        return response
+
+
     }
 
 
@@ -917,7 +931,7 @@ class MyPromptDelegate(listner: MainActivity2,browser: Browser):GeckoSession.Pro
 
     override fun onFilePrompt(
         session: GeckoSession,
-        prompt: GeckoSession.PromptDelegate.FilePrompt
+        prompt: GeckoSession.PromptDelegate.FilePrompt,
     ): GeckoResult<PromptResponse>? {
         val responce:  GeckoResult<PromptResponse>? = GeckoResult<PromptResponse>()
 
@@ -928,19 +942,219 @@ class MyPromptDelegate(listner: MainActivity2,browser: Browser):GeckoSession.Pro
 
     override fun onDateTimePrompt(
         session: GeckoSession,
-        prompt: GeckoSession.PromptDelegate.DateTimePrompt
+        prompt: GeckoSession.PromptDelegate.DateTimePrompt,
     ): GeckoResult<PromptResponse>? {
+
+        val format: String
+
+        format = if (prompt.type === DateTimePrompt.Type.DATE) {
+            "yyyy-MM-dd"
+        } else if (prompt.type === DateTimePrompt.Type.MONTH) {
+            "yyyy-MM"
+        } else if (prompt.type === DateTimePrompt.Type.WEEK) {
+            "yyyy-'W'ww"
+        } else if (prompt.type === DateTimePrompt.Type.TIME) {
+            "HH:mm"
+        } else if (prompt.type === DateTimePrompt.Type.DATETIME_LOCAL) {
+            "yyyy-MM-dd'T'HH:mm"
+        } else {
+            throw java.lang.UnsupportedOperationException()
+        }
+
+        val formatter = SimpleDateFormat(format, Locale.ROOT)
+        val minDate: Date? = parseDate(formatter, prompt.minValue,  /* defaultToNow */false)
+        val maxDate: Date? = parseDate(formatter, prompt.maxValue,  /* defaultToNow */false)
+        val date: Date? = parseDate(formatter, prompt.defaultValue,  /* defaultToNow */true)
+        val cal: Calendar = formatter.getCalendar()
+        cal.setTime(date)
+
+        val builder = AlertDialog.Builder(listner)
+        val inflater = LayoutInflater.from(builder.context)
+        val datePicker: DatePicker?
+        if (prompt.type === DateTimePrompt.Type.DATE || prompt.type === DateTimePrompt.Type.MONTH || prompt.type === DateTimePrompt.Type.WEEK || prompt.type === DateTimePrompt.Type.DATETIME_LOCAL) {
+            val resId = builder
+                .context
+                .resources
+                .getIdentifier("date_picker_dialog", "layout", "android")
+            var picker: DatePicker? = null
+            if (resId != 0) {
+                try {
+                    picker = inflater.inflate(resId,  /* root */null) as DatePicker
+                } catch (e: ClassCastException) {
+                } catch (e: InflateException) {
+                }
+            }
+            if (picker == null) {
+                picker = DatePicker(builder.context)
+            }
+            picker.init(
+                cal.get(Calendar.YEAR),
+                cal.get(Calendar.MONTH),
+                cal.get(Calendar.DAY_OF_MONTH),  /* listener */
+                null)
+            if (minDate != null) {
+                picker.minDate = minDate.getTime()
+            }
+            if (maxDate != null) {
+                picker.maxDate = maxDate.getTime()
+            }
+            datePicker = picker
+        } else {
+            datePicker = null
+        }
+
+        val timePicker: TimePicker?
+        if (prompt.type === DateTimePrompt.Type.TIME
+            || prompt.type === DateTimePrompt.Type.DATETIME_LOCAL
+        ) {
+            val resId = builder
+                .context
+                .resources
+                .getIdentifier("time_picker_dialog", "layout", "android")
+            var picker: TimePicker? = null
+            if (resId != 0) {
+                try {
+                    picker = inflater.inflate(resId,  /* root */null) as TimePicker
+                } catch (e: ClassCastException) {
+                } catch (e: InflateException) {
+                }
+            }
+            if (picker == null) {
+                picker = TimePicker(builder.context)
+            }
+            setTimePickerTime(picker, cal)
+            picker.setIs24HourView(DateFormat.is24HourFormat(builder.context))
+            timePicker = picker
+        } else {
+            timePicker = null
+        }
+
+        val container: LinearLayout? = prompt.title?.let {
+            addStandardLayout(builder,
+                it,  /* msg */null)
+        }
+        container?.setPadding( /* left */0,  /* top */0,  /* right */0,  /* bottom */0)
+        if (datePicker != null) {
+            container?.addView(datePicker)
+        }
+        if (timePicker != null) {
+            container?.addView(timePicker)
+        }
+
+        val res = GeckoResult<PromptResponse>()
+
+        val listener =
+            DialogInterface.OnClickListener { dialog, which ->
+                if (which == DialogInterface.BUTTON_NEUTRAL) {
+                    // Clear
+                    res.complete(prompt.confirm(""))
+                    return@OnClickListener
+                }
+                if (datePicker != null) {
+                    cal.set(datePicker.year, datePicker.month, datePicker.dayOfMonth)
+                }
+                timePicker?.let { setCalendarTime(cal, it) }
+                res.complete(prompt.confirm(formatter.format(cal.getTime())))
+            }
+        builder
+            .setNegativeButton(R.string.cancel,  /* listener */null)
+            .setNeutralButton("clear field", listener)
+            .setPositiveButton(R.string.ok, listener)
+
+        val dialog: AlertDialog = createStandardDialog(builder, prompt, res)!!
+        dialog.show()
+
+        prompt.setDelegate(
+            object : PromptInstanceDelegate {
+                override fun onPromptDismiss(prompt: BasePrompt) {
+                    dialog.dismiss()
+                }
+            })
+        return res
+
 
 
         return super.onDateTimePrompt(session, prompt)
     }
 
+    private fun createStandardDialog(
+        builder: AlertDialog.Builder,
+        prompt: BasePrompt,
+        response: GeckoResult<PromptResponse>,
+    ): AlertDialog? {
+        val dialog = builder.create()
+        dialog.setOnDismissListener {
+            if (!prompt.isComplete) {
+                response.complete(prompt.dismiss())
+            }
+        }
+        return dialog
+    }
+    private fun setCalendarTime(cal: Calendar, picker: TimePicker) {
+        if (Build.VERSION.SDK_INT >= 23) {
+            cal[Calendar.HOUR_OF_DAY] = picker.hour
+            cal[Calendar.MINUTE] = picker.minute
+        } else {
+            cal[Calendar.HOUR_OF_DAY] = picker.currentHour
+            cal[Calendar.MINUTE] = picker.currentMinute
+        }
+    }
+
+
+    private fun addStandardLayout(
+        builder: AlertDialog.Builder, title: String, msg: String?,
+    ): LinearLayout {
+        val scrollView = ScrollView(builder.context)
+        val container = LinearLayout(builder.context)
+        val horizontalPadding: Int = getViewPadding(builder)
+        val verticalPadding = if (msg == null || msg.isEmpty()) horizontalPadding else 0
+        container.orientation = LinearLayout.VERTICAL
+        container.setPadding( /* left */
+            horizontalPadding,  /* top */verticalPadding,  /* right */
+            horizontalPadding,  /* bottom */verticalPadding)
+        scrollView.addView(container)
+        builder.setTitle(title).setMessage(msg).setView(scrollView)
+        return container
+    }
+
+
+    private fun getViewPadding(builder: AlertDialog.Builder): Int {
+        val attr = builder
+            .context
+            .obtainStyledAttributes(intArrayOf(R.attr.listPreferredItemPaddingLeft))
+        val padding = attr.getDimensionPixelSize(0, 1)
+        attr.recycle()
+        return padding
+    }
+
+    private fun parseDate(
+        formatter: SimpleDateFormat, value: String?, defaultToNow: Boolean,
+    ): Date? {
+        try {
+            if (value != null && !value.isEmpty()) {
+                return formatter.parse(value)
+            }
+        } catch (e: ParseException) {
+        }
+        return if (defaultToNow) Date() else null
+    }
+
+
+    private fun setTimePickerTime(picker: TimePicker, cal: Calendar) {
+        if (Build.VERSION.SDK_INT >= 23) {
+            picker.hour = cal[Calendar.HOUR_OF_DAY]
+            picker.minute = cal[Calendar.MINUTE]
+        } else {
+            picker.currentHour = cal[Calendar.HOUR_OF_DAY]
+            picker.currentMinute = cal[Calendar.MINUTE]
+        }
+    }
 
 
 
     override fun onAlertPrompt(
         session: GeckoSession,
-        prompt: GeckoSession.PromptDelegate.AlertPrompt
+        prompt: GeckoSession.PromptDelegate.AlertPrompt,
     ): GeckoResult<PromptResponse>? {
 
 
@@ -969,7 +1183,7 @@ class MyPromptDelegate(listner: MainActivity2,browser: Browser):GeckoSession.Pro
 
     override fun onCreditCardSave(
         session: GeckoSession,
-        request: GeckoSession.PromptDelegate.AutocompleteRequest<Autocomplete.CreditCardSaveOption>
+        request: GeckoSession.PromptDelegate.AutocompleteRequest<Autocomplete.CreditCardSaveOption>,
     ): GeckoResult<PromptResponse>? {
         val geckoresult= GeckoResult<PromptResponse>()
 
@@ -983,7 +1197,7 @@ class MyPromptDelegate(listner: MainActivity2,browser: Browser):GeckoSession.Pro
 
     override fun onCreditCardSelect(
         session: GeckoSession,
-        request: GeckoSession.PromptDelegate.AutocompleteRequest<Autocomplete.CreditCardSelectOption>
+        request: GeckoSession.PromptDelegate.AutocompleteRequest<Autocomplete.CreditCardSelectOption>,
     ): GeckoResult<PromptResponse>? {
 
 //        Toast.makeText(listner,"Crdit card  selec\",Toast.LENGTH_SHORT).show()
@@ -1004,9 +1218,9 @@ class MyPromptDelegate(listner: MainActivity2,browser: Browser):GeckoSession.Pro
     }
 
         override fun onLoginSelect(
-        session: GeckoSession,
-        request: GeckoSession.PromptDelegate.AutocompleteRequest<Autocomplete.LoginSelectOption>
-    ): GeckoResult<PromptResponse>? {
+            session: GeckoSession,
+            request: GeckoSession.PromptDelegate.AutocompleteRequest<Autocomplete.LoginSelectOption>,
+        ): GeckoResult<PromptResponse>? {
 
 
         val array :ArrayList<String> = ArrayList()
@@ -1030,7 +1244,7 @@ class MyPromptDelegate(listner: MainActivity2,browser: Browser):GeckoSession.Pro
 
     override fun onLoginSave(
         session: GeckoSession,
-        request: GeckoSession.PromptDelegate.AutocompleteRequest<Autocomplete.LoginSaveOption>
+        request: GeckoSession.PromptDelegate.AutocompleteRequest<Autocomplete.LoginSaveOption>,
     ) : GeckoResult<PromptResponse>? {
 
 
@@ -1049,7 +1263,7 @@ class MyPromptDelegate(listner: MainActivity2,browser: Browser):GeckoSession.Pro
 
     override fun onAddressSave(
         session: GeckoSession,
-        request: GeckoSession.PromptDelegate.AutocompleteRequest<Autocomplete.AddressSaveOption>
+        request: GeckoSession.PromptDelegate.AutocompleteRequest<Autocomplete.AddressSaveOption>,
     ): GeckoResult<PromptResponse>? {
 
 
@@ -1071,7 +1285,7 @@ class MyPromptDelegate(listner: MainActivity2,browser: Browser):GeckoSession.Pro
 
     override fun onAddressSelect(
         session: GeckoSession,
-        request: GeckoSession.PromptDelegate.AutocompleteRequest<Autocomplete.AddressSelectOption>
+        request: GeckoSession.PromptDelegate.AutocompleteRequest<Autocomplete.AddressSelectOption>,
     ): GeckoResult<PromptResponse>? {
          val array :ArrayList<String> = ArrayList()
 
@@ -1178,7 +1392,7 @@ class MyProgressDetegate(listner: MainActivity2,browser: Browser):GeckoSession.P
 
     override fun onSecurityChange(
         session: GeckoSession,
-        securityInf: GeckoSession.ProgressDelegate.SecurityInformation
+        securityInf: GeckoSession.ProgressDelegate.SecurityInformation,
     ) {
         securityInfo= securityInf
         isSecure= securityInf.isSecure
@@ -1187,7 +1401,7 @@ class MyProgressDetegate(listner: MainActivity2,browser: Browser):GeckoSession.P
 
     override fun onSessionStateChange(
         session: GeckoSession,
-        sessionState: GeckoSession.SessionState
+        sessionState: GeckoSession.SessionState,
     ) {
     browser.SesssionSateMap[session]= sessionState
     }
@@ -1373,7 +1587,7 @@ class MyMediaSessionDelegate(listner: MainActivity2) : MediaSession.Delegate{
     override fun onMetadata(
         session: GeckoSession,
         mediaSession: MediaSession,
-        meta: MediaSession.Metadata
+        meta: MediaSession.Metadata,
     ) {
         mediaNotification.setMeta(meta.title.toString(),session,meta.artwork)
 
