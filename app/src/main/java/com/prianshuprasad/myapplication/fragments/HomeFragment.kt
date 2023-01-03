@@ -544,6 +544,7 @@ class HomeFragment(browser: Browser, listener:MainActivity2) : Fragment() {
       urlEditText.setText(Currurl)
       checkBookmark()
       closeFinder()
+      listener.saveTabs()
 
   }
 

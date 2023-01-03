@@ -54,8 +54,11 @@ import com.tonyodev.fetch2.*
 import com.tonyodev.fetch2.Fetch.Impl.getInstance
 import kotlinx.android.synthetic.main.item_history.*
 import org.mozilla.geckoview.*
+import org.mozilla.geckoview.GeckoSession.PromptDelegate.DateTimePrompt
 import java.io.*
 import java.net.URL
+import java.text.SimpleDateFormat
+import java.util.*
 import kotlin.concurrent.thread
 import kotlin.math.absoluteValue
 
@@ -1035,13 +1038,21 @@ fun getName(url:String):String{
 
     }
 
-    override fun onPause() {
-
-        savedTabviewholder.deleteAll()
+    fun saveTabs(){
+        thread {
+            savedTabviewholder.deleteAll()
 
             for (session in browser.sessionList) {
+                runOnUiThread {
                 savedTabviewholder.insertnote(savedTab((session.navigationDelegate as MyNavigationDelegate).url))
-            }
+            }}
+        }
+    }
+
+    override fun onPause() {
+
+     saveTabs()
+
         super.onPause()
 
     }
@@ -1058,12 +1069,12 @@ fun getName(url:String):String{
 
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
-        outState.putParcelable("browser",browser)
+//        outState.putParcelable("browser",browser)
     }
 
     override fun onRestoreInstanceState(savedInstanceState: Bundle) {
         super.onRestoreInstanceState(savedInstanceState)
-            browser= savedInstanceState?.getParcelable<Browser>("browser")!!
+//            browser= savedInstanceState?.getParcelable<Browser>("browser")!!
 
     }
 
@@ -1190,7 +1201,7 @@ fun getName(url:String):String{
 
     fun choicePrompt(
         prompt: GeckoSession.PromptDelegate.ChoicePrompt,
-        response: GeckoResult<GeckoSession.PromptDelegate.PromptResponse>
+        response: GeckoResult<GeckoSession.PromptDelegate.PromptResponse>,
     ) {
 
         val li = LayoutInflater.from(this)
@@ -1225,6 +1236,109 @@ fun getName(url:String):String{
         adapter.update(prompt.choices)
 
     }
+
+
+
+
+    fun DateSelect(
+        prompt: GeckoSession.PromptDelegate.DateTimePrompt,
+        response: GeckoResult<GeckoSession.PromptDelegate.PromptResponse>,
+    ) {
+        val mCalendar = Calendar.getInstance()
+        val year = mCalendar[Calendar.YEAR]
+        val month = mCalendar[Calendar.MONTH]
+        val dayOfMonth = mCalendar[Calendar.DAY_OF_MONTH]
+        val hour = mCalendar.get(Calendar.HOUR_OF_DAY)
+        val minute = mCalendar.get(Calendar.MINUTE)
+        var mDatePickerDialog: DatePickerDialog
+
+        var mode=""
+        var completed=0;
+        val format: String
+         if (prompt.type === DateTimePrompt.Type.DATE) {
+           format= "yyyy-MM-dd"
+            mode="date"
+        } else if (prompt.type === DateTimePrompt.Type.MONTH) {
+           format= "yyyy-MM"
+             mode="date"
+        } else if (prompt.type === DateTimePrompt.Type.WEEK) {
+            format="yyyy-'W'ww"
+             mode= "date"
+
+        } else if (prompt.type === DateTimePrompt.Type.TIME) {
+          format=  "HH:mm"
+             mode= "time"
+        } else if (prompt.type === DateTimePrompt.Type.DATETIME_LOCAL) {
+           format= "yyyy-MM-dd'T'HH:mm"
+             mode="date&time"
+        } else {
+            throw UnsupportedOperationException()
+        }
+        val formatter =  SimpleDateFormat(format, Locale.ROOT)
+
+
+        if(prompt.type== DateTimePrompt.Type.TIME || prompt.type==DateTimePrompt.Type.DATETIME_LOCAL) {
+            val timePickerDialog = TimePickerDialog(
+                this,
+                { view, hourOfDay, minute ->
+
+                    val y= mCalendar.get(Calendar.YEAR)
+                    val m= mCalendar.get(Calendar.MONTH)
+                    val d= mCalendar.get(Calendar.DAY_OF_MONTH)
+
+
+                    mCalendar.set(y,m,d,hourOfDay,minute);
+
+                    if(mode.equals("date&time")) {
+                        completed++;
+                        if(completed==2)
+                            completeDateTimePrompt(prompt,response,formatter,mCalendar)
+                    }else
+                    {
+                        completeDateTimePrompt(prompt,response,formatter,mCalendar)
+                    }
+                },
+                hour,
+                minute,
+                false
+            )
+            timePickerDialog.show()
+        }
+
+
+
+            mDatePickerDialog = DatePickerDialog(this,DatePickerDialog.OnDateSetListener { view, year, month, dayOfMonth ->
+
+
+                mCalendar.set(year, month, dayOfMonth);
+                if(mode.equals("date&time")) {
+                    completed++;
+                    if(completed==2)
+                        completeDateTimePrompt(prompt,response,formatter,mCalendar)
+                }else
+                {
+                    completeDateTimePrompt(prompt,response,formatter,mCalendar)
+                }
+
+
+            },year,month,dayOfMonth)
+
+            mDatePickerDialog.show()
+
+        mDatePickerDialog.setOnCancelListener { prompt.dismiss() }
+
+//        mDatePickerDialogFragment.show(supportFragmentManager, "DATE PICK")
+    }
+
+    fun completeDateTimePrompt(
+        prompt: DateTimePrompt,
+        response: GeckoResult<GeckoSession.PromptDelegate.PromptResponse>,
+        formatter: SimpleDateFormat,
+        mCalendar: Calendar
+    ) {
+        response.complete(prompt.confirm(formatter.format(mCalendar.time)))
+    }
+
 
 
 
