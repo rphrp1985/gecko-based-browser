@@ -102,8 +102,6 @@ class TabFragment(browser: Browser) : Fragment() {
         // TODO: Use the ViewModel
     }
 
-
-
     fun removeTab(inde:Int){
         val index= convertIndex[inde]
         browser.sessionList[index].close()

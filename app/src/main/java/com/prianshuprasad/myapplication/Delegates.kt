@@ -25,6 +25,7 @@ import org.mozilla.geckoview.ContentBlocking.*
 import org.mozilla.geckoview.GeckoSession.HistoryDelegate.HistoryList
 import org.mozilla.geckoview.GeckoSession.PermissionDelegate.*
 import org.mozilla.geckoview.GeckoSession.PromptDelegate.*
+import org.mozilla.geckoview.GeckoSession.PromptDelegate.SharePrompt.Result.SUCCESS
 import org.mozilla.geckoview.GeckoSession.SelectionActionDelegate.ClipboardPermission
 import org.mozilla.geckoview.GeckoSession.VisitFlags
 import java.net.URL
@@ -959,9 +960,118 @@ class MyPromptDelegate(listner: MainActivity2,browser: Browser):GeckoSession.Pro
 
 
 
-
         return super.onAlertPrompt(session, prompt)
     }
+
+    override fun onTextPrompt(
+        session: GeckoSession,
+        prompt: TextPrompt
+    ): GeckoResult<PromptResponse>? {
+
+
+        val builder: AlertDialog.Builder = AlertDialog.Builder(listner)
+
+        builder.setMessage("${prompt.message}")
+
+        builder.setTitle("${prompt.title}")
+        builder.setCancelable(true)
+        builder.setPositiveButton("ok",
+            DialogInterface.OnClickListener { dialog: DialogInterface?, which: Int ->
+
+
+
+            } as DialogInterface.OnClickListener)
+
+        val alertDialog: AlertDialog = builder.create()
+
+        alertDialog.show()
+
+
+
+
+        return super.onTextPrompt(session, prompt)
+    }
+
+    override fun onRepostConfirmPrompt(
+        session: GeckoSession,
+        prompt: RepostConfirmPrompt
+    ): GeckoResult<PromptResponse>? {
+
+        val response= GeckoResult<PromptResponse>()
+
+        val builder: AlertDialog.Builder = AlertDialog.Builder(listner)
+
+        builder.setMessage("confirm Resubmission?")
+
+        builder.setTitle("${prompt.title}")
+        builder.setCancelable(true)
+        builder.setPositiveButton("Yes",
+            DialogInterface.OnClickListener { dialog: DialogInterface?, which: Int ->
+
+           response.complete(prompt.confirm(AllowOrDeny.ALLOW))
+
+            } as DialogInterface.OnClickListener)
+        builder.setNegativeButton("No", DialogInterface.OnClickListener {
+                dialog: DialogInterface?, which: Int ->
+
+            response.complete(prompt.confirm(AllowOrDeny.DENY))
+
+        }  )
+
+        val alertDialog: AlertDialog = builder.create()
+
+        alertDialog.show()
+
+        return response
+    }
+
+    override fun onBeforeUnloadPrompt(
+        session: GeckoSession,
+        prompt: BeforeUnloadPrompt
+    ): GeckoResult<PromptResponse>? {
+
+        val response= GeckoResult<PromptResponse>()
+
+        val builder: AlertDialog.Builder = AlertDialog.Builder(listner)
+
+        builder.setMessage("Allow page to continue with the navigation ?")
+
+        builder.setTitle("${prompt.title}")
+        builder.setCancelable(true)
+        builder.setPositiveButton("Yes",
+            DialogInterface.OnClickListener { dialog: DialogInterface?, which: Int ->
+
+                response.complete(prompt.confirm(AllowOrDeny.ALLOW))
+
+            } as DialogInterface.OnClickListener)
+        builder.setNegativeButton("No", DialogInterface.OnClickListener {
+                dialog: DialogInterface?, which: Int ->
+
+            response.complete(prompt.confirm(AllowOrDeny.DENY))
+
+        }  )
+
+        val alertDialog: AlertDialog = builder.create()
+
+        alertDialog.show()
+
+        return response
+    }
+
+
+    override fun onSharePrompt(
+        session: GeckoSession,
+        prompt: SharePrompt
+    ): GeckoResult<PromptResponse>? {
+
+
+        listner.homeFragment.shareUrl(prompt.uri.toString())
+
+        return GeckoResult.fromValue(prompt.confirm(SUCCESS))
+        }
+
+
+
 
     override fun onCreditCardSave(
         session: GeckoSession,
@@ -1082,14 +1192,6 @@ class MyPromptDelegate(listner: MainActivity2,browser: Browser):GeckoSession.Pro
         listner.homeFragment.ShowSlideScreen(array,x,request)
 
         return x
-    }
-
-
-    override fun onTextPrompt(
-        session: GeckoSession,
-        prompt: TextPrompt
-    ): GeckoResult<PromptResponse>? {
-        return super.onTextPrompt(session, prompt)
     }
 
 

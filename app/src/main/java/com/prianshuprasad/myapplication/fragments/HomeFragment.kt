@@ -185,11 +185,7 @@ class HomeFragment(browser: Browser, listener:MainActivity2) : Fragment() {
                     (activity as MainActivity2).OpenDownloadFragment()
                 }
                 R.id.action_share_page->{
-                    val i = Intent(Intent.ACTION_SEND)
-                    i.type = "text/plain"
-                    i.putExtra(Intent.EXTRA_SUBJECT, "Sharing URl")
-                    i.putExtra(Intent.EXTRA_TEXT, "${Currurl}")
-                    startActivity(Intent.createChooser(i, "Share URL"))
+                  shareUrl(Currurl)
                 }
 
                 R.id.action_bookmark-> {
@@ -286,6 +282,14 @@ class HomeFragment(browser: Browser, listener:MainActivity2) : Fragment() {
         if(browser.settingsData.swipeRefresh!=0)
         swipeRefreshLayout.isEnabled = scrolly<=10
 
+    }
+
+    fun shareUrl(url: String){
+        val i = Intent(Intent.ACTION_SEND)
+        i.type = "text/plain"
+        i.putExtra(Intent.EXTRA_SUBJECT, "Sharing URl")
+        i.putExtra(Intent.EXTRA_TEXT, "${url}")
+        startActivity(Intent.createChooser(i, "Share URL"))
     }
 
 
