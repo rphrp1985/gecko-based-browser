@@ -106,19 +106,15 @@ class TabFragment(browser: Browser) : Fragment() {
 
     fun removeTab(inde:Int){
         val index= convertIndex[inde]
+        browser.sessionList[index].close()
+        browser.SesssionSateMap.remove(browser.sessionList[index])
         browser.sessionList.removeAt(index)
         browser.isAnonymousList.removeAt(index)
         browser.naviggationDelegateList.removeAt(index)
         browser.sessionRuntime.removeAt(index)
         browser.sessionImage.removeAt(index)
-
-
         browser.currIndex= Math.min(browser.sessionList.size-1,browser.currIndex)
-
         adapterUpdate(navigation.selectedItemId)
-
-
-
     }
 
     fun openWeb(inde:Int){

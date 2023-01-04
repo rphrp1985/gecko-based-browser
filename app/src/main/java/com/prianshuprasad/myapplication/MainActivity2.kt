@@ -635,6 +635,23 @@ private val queueCallback:ArrayList<GeckoSession.PermissionDelegate.Callback> = 
             openAuth()
         }
 
+        for(session in browser.sessionList){
+            if(!session.isOpen) {
+                browser.SesssionSateMap[session]?.let {
+                    try {
+                        session.restoreState(it)
+                    } catch (e: Exception) {
+                        try {
+                            session.reload()
+                        }catch (e:Exception){
+                            triggerRebirth(this)
+                        }
+                    }
+                }
+            }
+        }
+
+
         super.onResume()
 
     }
@@ -1338,6 +1355,7 @@ fun getName(url:String):String{
     ) {
         response.complete(prompt.confirm(formatter.format(mCalendar.time)))
     }
+
 
 
 

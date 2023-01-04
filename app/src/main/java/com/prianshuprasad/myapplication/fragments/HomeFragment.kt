@@ -304,6 +304,23 @@ class HomeFragment(browser: Browser, listener:MainActivity2) : Fragment() {
             progressView.visibility= View.GONE
             browser.currIndex = index
 
+            if(!browser.sessionList[index].isOpen){
+
+                browser.SesssionSateMap[browser.sessionList[index]]?.let {
+                    try {
+                        browser.sessionList[index].restoreState(it)
+                    }catch (e:Exception){
+                        try {
+                            browser.sessionList[index].reload()
+                        }catch (e:Exception){
+                            listener.triggerRebirth(listener)
+                        }
+                    }
+                }
+
+
+            }
+
 
             val myNavigationDelegate:MyNavigationDelegate= browser.sessionList[index].navigationDelegate as MyNavigationDelegate
             geckoView.setSession(browser.sessionList[index])

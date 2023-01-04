@@ -286,9 +286,9 @@ class MyContentDelegate(var isAnonymous:Boolean=false, listner: MainActivity2,br
 
     override fun onKill(session: GeckoSession) {
 
-        browser.SesssionSateMap[session]?.let {
-            session.restoreState(it)
-        }
+//        browser.SesssionSateMap[session]?.let {
+//            session.restoreState(it)
+//        }
 
 
         super.onKill(session)
@@ -297,14 +297,15 @@ class MyContentDelegate(var isAnonymous:Boolean=false, listner: MainActivity2,br
     override fun onCloseRequest(session: GeckoSession) {
 
 
+
         super.onCloseRequest(session)
     }
 
     override fun onCrash(session: GeckoSession) {
 
-        browser.SesssionSateMap[session]?.let {
-            session.restoreState(it)
-        }
+//        browser.SesssionSateMap[session]?.let {
+//            session.restoreState(it)
+//        }
 
         super.onCrash(session)
     }
@@ -1084,15 +1085,18 @@ class MyPromptDelegate(listner: MainActivity2,browser: Browser):GeckoSession.Pro
     }
 
 
-
-
+    override fun onTextPrompt(
+        session: GeckoSession,
+        prompt: TextPrompt
+    ): GeckoResult<PromptResponse>? {
+        return super.onTextPrompt(session, prompt)
+    }
 
 
 
 
 
 }
-
 
 class MySelectActionDelegate(listner: MainActivity2): GeckoSession.SelectionActionDelegate {
     val listner= listner
