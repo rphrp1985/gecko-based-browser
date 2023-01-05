@@ -280,32 +280,30 @@ class MyContentDelegate(var isAnonymous:Boolean=false, listner: MainActivity2, b
 
      override fun onPreviewImage(
         session: GeckoSession, previewImageUrl: String,
-    ) {
+    ){
+
 
     }
 
     override fun onKill(session: GeckoSession) {
 
-//        browser.SesssionSateMap[session]?.let {
-//            session.restoreState(it)
-//        }
+        browser.SesssionSateMap[session]?.let {
+            session.restoreState(it)
+        }
 
 
         super.onKill(session)
     }
 
     override fun onCloseRequest(session: GeckoSession) {
-
-
-
         super.onCloseRequest(session)
     }
 
     override fun onCrash(session: GeckoSession) {
 
-//        browser.SesssionSateMap[session]?.let {
-//            session.restoreState(it)
-//        }
+        browser.SesssionSateMap[session]?.let {
+            session.restoreState(it)
+        }
 
         super.onCrash(session)
     }
@@ -935,6 +933,7 @@ class MyPromptDelegate(listner: MainActivity2, browser: Browser):GeckoSession.Pr
 
 
 
+
     override fun onAlertPrompt(
         session: GeckoSession,
         prompt: GeckoSession.PromptDelegate.AlertPrompt,
@@ -1219,6 +1218,7 @@ class MySelectActionDelegate(listner: MainActivity2): GeckoSession.SelectionActi
         selection: GeckoSession.SelectionActionDelegate.Selection,
     ) {
 
+     listner.ShowOnselectContextMenu(session,selection)
 
 
     }

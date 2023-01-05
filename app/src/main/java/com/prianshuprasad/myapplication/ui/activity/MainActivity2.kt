@@ -55,7 +55,6 @@ import com.prianshuprasad.myapplication.MyContentDelegate
 import com.prianshuprasad.myapplication.MyNavigationDelegate
 import com.prianshuprasad.myapplication.MyProgressDetegate
 import com.prianshuprasad.myapplication.R
-import com.prianshuprasad.myapplication.ui.fragments.*
 import com.prianshuprasad.myapplication.utils.Database.autocompleteDatabase.AutoCompleteData
 import com.prianshuprasad.myapplication.utils.Database.autocompleteDatabase.AutocompleteDataviewholder
 import com.prianshuprasad.myapplication.utils.Database.bookmarkDatabase.BookmarkDataviewholder
@@ -1373,6 +1372,113 @@ fun getName(url:String):String{
     ) {
         response.complete(prompt.confirm(formatter.format(mCalendar.time)))
     }
+
+
+
+
+
+    fun ShowOnselectContextMenu(
+        session: GeckoSession,
+        selection: GeckoSession.SelectionActionDelegate.Selection
+    ) {
+
+
+        val li = LayoutInflater.from(this)
+        val promptsView: View = li.inflate(R.layout.item_onselection_menu, null)
+        val heading = promptsView.findViewById<TextView>(R.id.heading)
+        val copy = promptsView.findViewById<TextView>(R.id.copy)
+        val cut = promptsView.findViewById<TextView>(R.id.cut)
+        val paste = promptsView.findViewById<TextView>(R.id.paste)
+        val delete = promptsView.findViewById<TextView>(R.id.delete)
+        val select_all = promptsView.findViewById<TextView>(R.id.Select_all)
+        val paste_plain = promptsView.findViewById<TextView>(R.id.paste_plain)
+        val unselect_all = promptsView.findViewById<TextView>(R.id.unselect)
+
+        heading.text= selection.text
+        var visibility_counter=0
+        for(str in selection.availableActions){
+            when(str.toString()){
+                "org.mozilla.geckoview.CUT"-> {cut.visibility= View.VISIBLE
+                 visibility_counter++;
+                }
+                "org.mozilla.geckoview.COPY"->{ copy.visibility= View.VISIBLE
+                visibility_counter++}
+                "org.mozilla.geckoview.DELETE"-> {delete.visibility= View.VISIBLE
+                visibility_counter++}
+                "org.mozilla.geckoview.PASTE"-> {paste.visibility= View.VISIBLE
+                visibility_counter}
+                "org.mozilla.geckoview.SELECT_ALL"-> {select_all.visibility= View.VISIBLE
+                visibility_counter}
+                "org.mozilla.geckoview.UNSELECT"-> {unselect_all.visibility=  View.VISIBLE
+                visibility_counter++}
+                "org.mozilla.geckoview.PASTE_AS_PLAIN_TEXT"-> {paste_plain.visibility= View.VISIBLE
+                visibility_counter++}
+
+            }
+        }
+
+
+
+        val alertDialogBuilder: AlertDialog.Builder = AlertDialog.Builder(this)
+        alertDialogBuilder.setView(promptsView)
+
+
+        alertDialogBuilder
+            .setCancelable(true)
+
+        val alertDialog: AlertDialog = alertDialogBuilder.create()
+
+
+        if(visibility_counter!=0)
+        alertDialog.show()
+
+
+
+    cut.setOnClickListener {
+        selection.cut()
+        alertDialog.cancel()
+    }
+
+        copy.setOnClickListener {  selection.copy()
+        alertDialog.cancel()
+
+        }
+
+        paste.setOnClickListener { selection.paste()
+        alertDialog.cancel()}
+
+        delete.setOnClickListener {  selection.delete()
+        alertDialog.cancel()}
+
+        select_all.setOnClickListener {
+            selection.selectAll()
+            alertDialog.cancel()
+        }
+
+        unselect_all.setOnClickListener {
+            selection.unselect()
+            alertDialog.cancel()
+        }
+
+
+        paste_plain.setOnClickListener {
+            selection.pasteAsPlainText()
+            alertDialog.cancel()
+        }
+
+
+
+
+    }
+
+
+
+
+
+
+
+
+
 
 }
 

@@ -150,12 +150,10 @@ class HomeFragment(browser: Browser, listener: MainActivity2) : Fragment() {
 
                 }
 
-                R.id.action_new_tab -> { addNewSession()
+                R.id.action_new_tab -> { addNewSession() }
 
-                }
-                R.id.action_settings->{   (activity as MainActivity2).openSettings()
+                R.id.action_settings->{   (activity as MainActivity2).openSettings() }
 
-                }
                 R.id.action_new_anon_tab->{
 
                     addNewSession(isAnonymous = true)
@@ -410,12 +408,7 @@ class HomeFragment(browser: Browser, listener: MainActivity2) : Fragment() {
         runtime.webNotificationDelegate = webNotificationDelegate
         runtime.settings.loginAutofillEnabled= true
 
-
-
-
-
          val navigationDelegate= MyNavigationDelegate(listener,browser)
-
 
         geckoSession.navigationDelegate = navigationDelegate
 

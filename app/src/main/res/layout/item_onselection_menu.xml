@@ -13,7 +13,7 @@
         android:id="@+id/heading"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Open in new tab"
+        android:text="text"
         android:layout_marginBottom="20dp"
         android:textSize="12sp"
         android:singleLine="true"
@@ -22,53 +22,77 @@
 
 
     <TextView
-        android:id="@+id/new_tab"
+        android:id="@+id/copy"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Open in new tab"
+        android:text="Copy"
+        android:visibility="gone"
         android:layout_marginBottom="25dp"
         android:textSize="18sp"
         />
 
 
     <TextView
-        android:id="@+id/new_anon_tab"
+        android:id="@+id/cut"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Open in Anonymous tab"
+        android:text="Cut"
+        android:visibility="gone"
         android:layout_marginBottom="25dp"
         android:textSize="18sp"
         />
 
 
     <TextView
-        android:id="@+id/copy_link"
+        android:id="@+id/paste"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Copy link"
+        android:text="Paste"
+        android:visibility="gone"
+        android:layout_marginBottom="25dp"
+        android:textSize="18sp"
+        />
+
+    <TextView
+        android:id="@+id/paste_plain"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Paste as Plain text"
+        android:visibility="gone"
+        android:layout_marginBottom="25dp"
+        android:textSize="18sp"
+        />
+
+    <TextView
+        android:id="@+id/delete"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Delete"
+        android:visibility="gone"
+        android:layout_marginBottom="25dp"
+        android:textSize="18sp"
+        />
+
+    <TextView
+        android:id="@+id/Select_all"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Select All"
+        android:visibility="gone"
         android:layout_marginBottom="25dp"
         android:textSize="18sp"
         />
 
 
     <TextView
-        android:id="@+id/download_link"
+        android:id="@+id/unselect"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Download link"
+        android:text="Unselect"
+        android:visibility="gone"
         android:layout_marginBottom="25dp"
         android:textSize="18sp"
         />
-
-    <TextView
-        android:id="@+id/share_link"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Share link"
-        android:layout_marginBottom="25dp"
-        android:textSize="18sp"
-        />
-
 
 
 
