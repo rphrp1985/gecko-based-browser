@@ -29,7 +29,7 @@ import org.mozilla.geckoview.GeckoSession.HistoryDelegate.HistoryList
 import org.mozilla.geckoview.GeckoSession.PermissionDelegate.*
 import org.mozilla.geckoview.GeckoSession.PromptDelegate.*
 import org.mozilla.geckoview.GeckoSession.PromptDelegate.SharePrompt.Result.SUCCESS
-import org.mozilla.geckoview.GeckoSession.SelectionActionDelegate.ClipboardPermission
+//import org.mozilla.geckoview.GeckoSession.SelectionActionDelegate.ClipboardPermission
 import org.mozilla.geckoview.GeckoSession.VisitFlags
 import java.net.URL
 import java.util.*
@@ -1205,13 +1205,13 @@ class MySelectActionDelegate(listner: MainActivity2): GeckoSession.SelectionActi
 
 
 
-    override fun onShowClipboardPermissionRequest(
-        session: GeckoSession, permission: ClipboardPermission,
-    ): GeckoResult<AllowOrDeny?> {
-
-//        Toast.makeText(listner,"clipbard permission --   -",Toast.LENGTH_SHORT).show()
-        return GeckoResult.allow()
-    }
+//    override fun onShowClipboardPermissionRequest(
+//        session: GeckoSession, permission: ClipboardPermission,
+//    ): GeckoResult<AllowOrDeny?> {
+//
+////        Toast.makeText(listner,"clipbard permission --   -",Toast.LENGTH_SHORT).show()
+//        return GeckoResult.allow()
+//    }
 
     override fun onShowActionRequest(
         session: GeckoSession,
@@ -1229,29 +1229,29 @@ class MySelectActionDelegate(listner: MainActivity2): GeckoSession.SelectionActi
     }
 
 
-    @UiThread
-    override fun onDismissClipboardPermissionRequest(session: GeckoSession) {
-
-//        Toast.makeText(listner,"clipbard permission   dismiss",Toast.LENGTH_SHORT).show()
-    }
+//    @UiThread
+//    override fun onDismissClipboardPermissionRequest(session: GeckoSession) {
+//
+////        Toast.makeText(listner,"clipbard permission   dismiss",Toast.LENGTH_SHORT).show()
+//    }
 }
 
 
-class X(activity: Activity) : BasicSelectionActionDelegate(activity) {
-    val listner= activity
-
-    override fun onShowClipboardPermissionRequest(
-        session: GeckoSession,
-        permission: ClipboardPermission,
-    ): GeckoResult<AllowOrDeny>? {
-
-//        Toast.makeText(listner,"clipbard permission   basoc",Toast.LENGTH_SHORT).show()
-
-        return super.onShowClipboardPermissionRequest(session, permission)
-    }
-
-
-}
+//class X(activity: Activity) : BasicSelectionActionDelegate(activity) {
+//    val listner= activity
+//
+//    override fun onShowClipboardPermissionRequest(
+//        session: GeckoSession,
+//        permission: ClipboardPermission,
+//    ): GeckoResult<AllowOrDeny>? {
+//
+////        Toast.makeText(listner,"clipbard permission   basoc",Toast.LENGTH_SHORT).show()
+//
+//        return super.onShowClipboardPermissionRequest(session, permission)
+//    }
+//
+//
+//}
 
 
 class MyGeckoDisplay(session: GeckoSession?) : GeckoDisplay(session) {
