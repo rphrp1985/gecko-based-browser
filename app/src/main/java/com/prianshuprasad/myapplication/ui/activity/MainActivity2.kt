@@ -84,32 +84,27 @@ class MainActivity2 : AppCompatActivity() {
 
     lateinit var browser: Browser
     lateinit var homeFragment: HomeFragment
-    lateinit var settingsFragment: SettingsFragment
-    lateinit var tabFragment: TabFragment
-    lateinit var historyBookmark: HistoryBookmark
-    lateinit var notificationService: notificationServices
-    lateinit var siteNotificationFragment: SiteNotificationFragment
-    lateinit var permissionSettingsFragment: PermissionSettingsFragment
-    lateinit var notificationManager: NotificationManagerCompat
     private var sitePermissionMode:String=""
-    private lateinit var siteDataviewholder: SiteDataviewholder
-    private lateinit var settingsPrivacyFragment: SettingsPrivacyFragment
-    private lateinit var authenticationFragment: AuthenticationFragment
-    private lateinit var clearDataFragment: ClearDataFragment
-    private lateinit var autocompleteDataviewholder: AutocompleteDataviewholder
-    private lateinit var viewLoginsFragment: ViewLoginsFragment
-    private lateinit var bookmarkDataviewholder: BookmarkDataviewholder
-    private lateinit var savedTabviewholder: SavedTabviewholder
-    private lateinit var downloadFragment: DownloadFragment
-    private lateinit var downloadDataviewholder: DownloadDataviewholder
-    private lateinit var offlinePagesFragment: OfflinePagesFragment
-    private lateinit var offlinePageviewholder: OfflinePageviewholder
-    private lateinit var accessbilityFragment: AccessbilityFragment
+
+    val viewLoginsFragment: ViewLoginsFragment by lazy {
+        ViewLoginsFragment(this,browser)
+    }
     private lateinit var  prefs:SharedPreferences
     var BiometricsMode=""
     private lateinit var frameLayout: FrameLayout
-    var fetch: Fetch? = null
+
     private var isNightMode=false;
+
+    val fetchConfiguration: FetchConfiguration by lazy {
+        FetchConfiguration.Builder(this)
+            .setDownloadConcurrentLimit(5)
+            .build()
+    }
+
+    val fetch: Fetch? by lazy {
+         getInstance(fetchConfiguration)
+    }
+
 
 
     private lateinit var promptInfo: androidx.biometric.BiometricPrompt.PromptInfo
@@ -183,6 +178,65 @@ private val queueCallback:ArrayList<GeckoSession.PermissionDelegate.Callback> = 
 
     }
 
+     val settingsFragment: SettingsFragment by lazy {
+         SettingsFragment(browser,siteDataviewholder,prefs)
+    }
+
+    val tabFragment: TabFragment by lazy {
+        TabFragment(browser)
+    }
+    val historyBookmark: HistoryBookmark by lazy {
+        HistoryBookmark(this)
+    }
+    val notificationService: notificationServices by lazy{
+        notificationServices()
+    }
+     val siteNotificationFragment: SiteNotificationFragment by lazy{
+        SiteNotificationFragment(this)
+     }
+    val permissionSettingsFragment: PermissionSettingsFragment by lazy {PermissionSettingsFragment() }
+
+    val notificationManager: NotificationManagerCompat by lazy {
+        NotificationManagerCompat.from(this)
+    }
+    val siteDataviewholder: SiteDataviewholder by lazy { SiteDataviewholder(application) }
+
+     val settingsPrivacyFragment: SettingsPrivacyFragment by lazy{
+         SettingsPrivacyFragment(listner = this, browser = browser, siteDataviewholder = siteDataviewholder)
+
+     }
+     val authenticationFragment: AuthenticationFragment by lazy{
+         AuthenticationFragment(this)
+    }
+     val clearDataFragment: ClearDataFragment by lazy {
+         ClearDataFragment(this,browser)
+     }
+     val autocompleteDataviewholder: AutocompleteDataviewholder by lazy {
+         AutocompleteDataviewholder(application)
+     }
+
+     val bookmarkDataviewholder: BookmarkDataviewholder by lazy {
+         BookmarkDataviewholder(application)
+     }
+    val  savedTabviewholder: SavedTabviewholder by lazy {
+        SavedTabviewholder(application)
+    }
+    val  downloadFragment: DownloadFragment by lazy {
+        DownloadFragment(this,browser,downloadDataviewholder)
+    }
+    val downloadDataviewholder: DownloadDataviewholder by lazy {
+        DownloadDataviewholder(application)
+    }
+    val offlinePagesFragment: OfflinePagesFragment by lazy {
+        OfflinePagesFragment(this,offlinePageviewholder)
+    }
+     val offlinePageviewholder: OfflinePageviewholder by lazy{
+         OfflinePageviewholder(application)
+    }
+    val accessbilityFragment: AccessbilityFragment by lazy {
+        AccessbilityFragment(this,siteDataviewholder)
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main2)
@@ -191,74 +245,61 @@ private val queueCallback:ArrayList<GeckoSession.PermissionDelegate.Callback> = 
 
         val builder = VmPolicy.Builder()
         StrictMode.setVmPolicy(builder.build())
-
-            browser = Browser()
-
-
-
-        siteDataviewholder= SiteDataviewholder(application)
+        browser = Browser()
         homeFragment= HomeFragment(browser,this)
-        tabFragment = TabFragment(browser)
-        settingsFragment= SettingsFragment(browser,siteDataviewholder,prefs)
-        historyBookmark= HistoryBookmark(this)
-        notificationService= notificationServices()
-        siteNotificationFragment = SiteNotificationFragment(this)
-        permissionSettingsFragment= PermissionSettingsFragment()
-        settingsPrivacyFragment = SettingsPrivacyFragment(listner = this, browser = browser, siteDataviewholder = siteDataviewholder)
-        authenticationFragment= AuthenticationFragment(this)
-        notificationManager = NotificationManagerCompat.from(this)
-        clearDataFragment= ClearDataFragment(this,browser)
-        viewLoginsFragment = ViewLoginsFragment(this,browser)
+
         frameLayout= findViewById(R.id.main_activity_fragment)
-        bookmarkDataviewholder = BookmarkDataviewholder(application)
-        downloadDataviewholder = DownloadDataviewholder(application)
-        downloadFragment= DownloadFragment(this,browser,downloadDataviewholder)
-        savedTabviewholder = SavedTabviewholder(application)
-        offlinePageviewholder = OfflinePageviewholder(application)
-        offlinePagesFragment= OfflinePagesFragment(this,offlinePageviewholder)
-        accessbilityFragment = AccessbilityFragment(this,siteDataviewholder)
 
-        val fetchConfiguration: FetchConfiguration =
-            FetchConfiguration.Builder(this)
-            .setDownloadConcurrentLimit(5)
-            .build()
+        Historyviewholder(application).allnotes
 
-        fetch = getInstance(fetchConfiguration)
+        siteDataviewholder.allnotes.observeForever {
 
-          Historyviewholder(application).allnotes
-
-             siteDataviewholder.allnotes.observeForever {
-
-                 var isSettingsFound=false
-                 browser.arr.clear()
+            thread {
+                var isSettingsFound = false
+                browser.arr.clear()
 //                 Toast.makeText(application,"Update ",Toast.LENGTH_SHORT).show()
-            for(x in it)
-            {
-                if(x.coreAdress=="Settings"){
-                    browser.settingsData= x
-                    isSettingsFound= true
+                for (x in it) {
+                    if (x.coreAdress == "Settings") {
+                        browser.settingsData = x
+                        isSettingsFound = true
 
-                }else
-                {
+                    } else {
 
-                    browser.arr.add(x)
+                        browser.arr.add(x)
+                    }
+
+
+                }
+                if (isSettingsFound) {
+
+                  runOnUiThread {
+                      recoverTabs()
+                  }
+                    return@thread
+
                 }
 
-
-            }
-                 if(isSettingsFound) {
-
-
-                         recoverTabs()
-                     return@observeForever
-
-                 }
-
-            siteDataviewholder.insertnote(SiteData(coreAdress = "Settings",
-            permNoti = 1, permAutoDownload = 1, permCamera = 1, permClipboard = 1, permCokies = 1, permDesktop = 0,
-            permJavaScript = 1, permLocation = 1, permMedia = 1, permMicrophone = 1, permMotionS = 1, permPopup = 1,
-                permProtectdContent = 1, permSound = 1, permStorage = 1, permUSB = 1, swipeRefresh = 1, autoSavePassword = 1
+                siteDataviewholder.insertnote(SiteData(coreAdress = "Settings",
+                    permNoti = 1,
+                    permAutoDownload = 1,
+                    permCamera = 1,
+                    permClipboard = 1,
+                    permCokies = 1,
+                    permDesktop = 0,
+                    permJavaScript = 1,
+                    permLocation = 1,
+                    permMedia = 1,
+                    permMicrophone = 1,
+                    permMotionS = 1,
+                    permPopup = 1,
+                    permProtectdContent = 1,
+                    permSound = 1,
+                    permStorage = 1,
+                    permUSB = 1,
+                    swipeRefresh = 1,
+                    autoSavePassword = 1
                 ))
+            }
                  return@observeForever
         }
 
@@ -269,39 +310,32 @@ private val queueCallback:ArrayList<GeckoSession.PermissionDelegate.Callback> = 
                 openWebView()
         },500)
 
-        autocompleteDataviewholder= AutocompleteDataviewholder(application)
-        autocompleteDataviewholder.allnotes.observeForever {
-            browser.autocompleteList= it as ArrayList<AutoCompleteData>
 
+        autocompleteDataviewholder.allnotes.observeForever {
+            thread {
+                browser.autocompleteList = it as ArrayList<AutoCompleteData>
+            }
         }
 
-
        bookmarkDataviewholder.allnotes.observeForever {
-
+          thread {
            browser.bookmarkMap.clear()
            for(data in it){
                browser.bookmarkMap.put(data.coreAdress,data)
            }
-       }
+       }}
+        downloadDataviewholder.allnotes
 
-        downloadDataviewholder.allnotes.observeForever {
+    }
 
-//            browser.downloadList= it as ArrayList<DownloadData>
-//            downloadFragment.adapter?.update(it)
-        }
-
-
-
+    fun getDownloads(){
         fetch?.getDownloads {
 
             browser.downloadArrayList = it as ArrayList<Download>
             downloadFragment.adapter?.update(browser.downloadArrayList)
         }
-
-
-
-
     }
+
 
     fun getNightMode()= isNightMode
 
@@ -314,41 +348,33 @@ private val queueCallback:ArrayList<GeckoSession.PermissionDelegate.Callback> = 
     private var isNew=true;
 
     fun recoverTabs(){
+            Handler().postDelayed({
 
+                    savedTabviewholder.allnotes.observeForever {
+                        thread {
+                        if (!isNew || browser.settingsData.saveTabs == 0)
+                            return@thread
 
-        Handler().postDelayed({
+                        isNew = false
+                        if (it == null) return@thread
 
+                        for (tabs in it) {
+                            runOnUiThread {
 
-            savedTabviewholder.allnotes.observeForever {
-//        homeFragment.addNewSession(url = "https://google.com")
+                                homeFragment.addNewSession(url = tabs.url)
 
-                if (!isNew || browser.settingsData.saveTabs==0)
-                    return@observeForever
+                            }
+                    }
+                        }
 
-                isNew = false
-//                Toast.makeText(this, "${it?.size}", Toast.LENGTH_LONG).show()
-
-                if (it == null) return@observeForever
-
-
-                for (tabs in it) {
-
-                    homeFragment.addNewSession(url = tabs.url)
-
-
-                    break;
+                        return@observeForever
                 }
-            }
-        },1000)
+            }, 1000)
+        }
 
-    }
 
     fun openSettings(){
-
-//         webView.visibility= View.GONE
-       val fragmentTransaction = supportFragmentManager.beginTransaction()
-
-
+        val fragmentTransaction = supportFragmentManager.beginTransaction()
         fragmentTransaction.setCustomAnimations(
             R.anim.slide_in,
             R.anim.slide_out,
@@ -356,7 +382,6 @@ private val queueCallback:ArrayList<GeckoSession.PermissionDelegate.Callback> = 
             R.anim.slide_out
         ).replace(R.id.main_activity_fragment,
             settingsFragment).commit()// content_fragment is id of FrameLayout(XML file) where fragment will be displayed
-
 
         fragmentTransaction.addToBackStack(settingsFragment.toString()) //add fragment to stack
 
@@ -474,38 +499,20 @@ private val queueCallback:ArrayList<GeckoSession.PermissionDelegate.Callback> = 
     override fun onConfigurationChanged(newConfig: Configuration) {
         super.onConfigurationChanged(newConfig)
         val nightModeFlags = resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK
-//
-//        homeFragment= HomeFragment(browser,this)
 
         if (nightModeFlags == Configuration.UI_MODE_NIGHT_NO){
-//            applyDayNight(OnDayNightStateChanged.DAY)
+
         }else{
-//            applyDayNight(OnDayNightStateChanged.NIGHT)
+
         }
     }
-//    private fun applyDayNight(state: Int){
-//        if (state == OnDayNightStateChanged.DAY){
-//            //apply day colors for your views
-//        }else{
-//            //apply night colors for your views
-//        }
-//    }
-
-
-
 
 
     fun openWebView(){
-
-
-            val fragmentTransaction = supportFragmentManager.beginTransaction()
-
-
-            fragmentTransaction.replace(R.id.main_activity_fragment,
+        val fragmentTransaction = supportFragmentManager.beginTransaction()
+        fragmentTransaction.replace(R.id.main_activity_fragment,
                 homeFragment, "Home_Fragment")
                 .commit()// content_fragment is id of FrameLayout(XML file) where fragment will be displayed
-
-
     }
 
     fun openTabPreView(){
@@ -584,9 +591,6 @@ private val queueCallback:ArrayList<GeckoSession.PermissionDelegate.Callback> = 
         }
 
         intent.putExtra("notification_url", webnotification.source)
-
-
-
         val pendingIntent: PendingIntent = PendingIntent.getActivity(
             this, 0, intent, PendingIntent.FLAG_ONE_SHOT)
 
@@ -652,29 +656,27 @@ private val queueCallback:ArrayList<GeckoSession.PermissionDelegate.Callback> = 
             openAuth()
         }
 
-        for(session in browser.sessionList){
-            if(!session.isOpen) {
-                browser.SesssionSateMap[session]?.let {
-                    try {
-                        session.restoreState(it)
-                    } catch (e: Exception) {
+        Thread {
+            for (session in browser.sessionList) {
+                if (!session.isOpen) {
+                    browser.SesssionSateMap[session]?.let {
                         try {
-                            session.reload()
-                        }catch (e:Exception){
-                            triggerRebirth(this)
+                            session.restoreState(it)
+                        } catch (e: Exception) {
+                            try {
+                                session.reload()
+                            } catch (e: Exception) {
+                                triggerRebirth(this)
+                            }
                         }
                     }
                 }
             }
         }
 
-
         super.onResume()
 
     }
-
-
-
 
 
 
@@ -784,7 +786,7 @@ private val queueCallback:ArrayList<GeckoSession.PermissionDelegate.Callback> = 
 
     }
 
-    @RequiresApi(Build.VERSION_CODES.P)
+
     fun BiometricHandler(){
 
         checkBiometricSupport()
@@ -840,7 +842,6 @@ private val queueCallback:ArrayList<GeckoSession.PermissionDelegate.Callback> = 
     }
 
 
-
     fun ShowUrLContextMenu(element: GeckoSession.ContentDelegate.ContextElement){
         val li = LayoutInflater.from(this)
         val promptsView: View = li.inflate(R.layout.item_url_context_menu, null)
@@ -851,23 +852,14 @@ private val queueCallback:ArrayList<GeckoSession.PermissionDelegate.Callback> = 
         val copy_link = promptsView.findViewById<TextView>(R.id.copy_link)
         val download_link = promptsView.findViewById<TextView>(R.id.download_link)
         val share_link = promptsView.findViewById<TextView>(R.id.share_link)
-
         heading.text= element.linkUri
-
         val alertDialogBuilder: AlertDialog.Builder = AlertDialog.Builder(this)
         alertDialogBuilder.setView(promptsView)
-
-
         alertDialogBuilder
             .setCancelable(true)
 
         val alertDialog: AlertDialog = alertDialogBuilder.create()
-
-
         alertDialog.show()
-
-
-
         new_tab.setOnClickListener {
             element.linkUri?.let { it1 -> homeFragment.addNewSession(url = it1) }
             alertDialog.cancel()
@@ -876,7 +868,6 @@ private val queueCallback:ArrayList<GeckoSession.PermissionDelegate.Callback> = 
             element.linkUri?.let { it1 -> homeFragment.addNewSession(url = it1, isAnonymous = true) }
             alertDialog.cancel()
         }
-
         copy_link.setOnClickListener {
 
             val clipboard: ClipboardManager =
@@ -971,8 +962,6 @@ fun getName(url:String):String{
     fun saveWebPage(url: String){
         PermissionManager(arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE), 9)
         PermissionManager(arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE), 9)
-
-
 
         var downloadDir = File("file:///sdcard/", "download")
          downloadDir = File(application.filesDir, "download")

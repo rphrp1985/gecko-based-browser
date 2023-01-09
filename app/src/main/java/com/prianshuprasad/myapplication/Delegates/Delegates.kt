@@ -9,6 +9,10 @@ import android.app.Application
 import android.content.Context
 import android.content.DialogInterface
 import android.graphics.Bitmap
+import android.view.LayoutInflater
+import android.view.View
+import android.widget.EditText
+import android.widget.TextView
 import androidx.annotation.AnyThread
 import androidx.annotation.UiThread
 import androidx.lifecycle.MutableLiveData
@@ -28,6 +32,8 @@ import org.mozilla.geckoview.ContentBlocking.*
 import org.mozilla.geckoview.GeckoSession.HistoryDelegate.HistoryList
 import org.mozilla.geckoview.GeckoSession.PermissionDelegate.*
 import org.mozilla.geckoview.GeckoSession.PromptDelegate.*
+import org.mozilla.geckoview.GeckoSession.PromptDelegate.ButtonPrompt.Type.NEGATIVE
+import org.mozilla.geckoview.GeckoSession.PromptDelegate.ButtonPrompt.Type.POSITIVE
 import org.mozilla.geckoview.GeckoSession.PromptDelegate.SharePrompt.Result.SUCCESS
 //import org.mozilla.geckoview.GeckoSession.SelectionActionDelegate.ClipboardPermission
 import org.mozilla.geckoview.GeckoSession.VisitFlags
@@ -967,28 +973,31 @@ class MyPromptDelegate(listner: MainActivity2, browser: Browser):GeckoSession.Pr
         prompt: TextPrompt
     ): GeckoResult<PromptResponse>? {
 
+        val li = LayoutInflater.from(listner)
+        val promptsView: View = li.inflate(R.layout.item_text_prompt, null)
+        val msg = promptsView.findViewById<TextView>(R.id.text)
+        val editText = promptsView.findViewById<EditText>(R.id.edittext)
 
-        val builder: AlertDialog.Builder = AlertDialog.Builder(listner)
+        msg.text= prompt.message
+        val response= GeckoResult<PromptResponse>()
+        val alertDialogBuilder: AlertDialog.Builder = AlertDialog.Builder(listner)
 
-        builder.setMessage("${prompt.message}")
+        alertDialogBuilder.setView(promptsView)
+        alertDialogBuilder
+            .setCancelable(true)
 
-        builder.setTitle("${prompt.title}")
-        builder.setCancelable(true)
-        builder.setPositiveButton("ok",
-            DialogInterface.OnClickListener { dialog: DialogInterface?, which: Int ->
+        alertDialogBuilder.setNegativeButton("cancel",DialogInterface.OnClickListener { dialog, which ->
 
+            response.complete(prompt.dismiss())
+        })
 
-
-            } as DialogInterface.OnClickListener)
-
-        val alertDialog: AlertDialog = builder.create()
-
+        alertDialogBuilder.setPositiveButton("submit",DialogInterface.OnClickListener { dialog, which ->
+            response.complete(prompt.confirm(editText.text.toString()))
+        })
+        val alertDialog: AlertDialog = alertDialogBuilder.create()
         alertDialog.show()
+        return  response
 
-
-
-
-        return super.onTextPrompt(session, prompt)
     }
 
     override fun onRepostConfirmPrompt(
@@ -999,7 +1008,6 @@ class MyPromptDelegate(listner: MainActivity2, browser: Browser):GeckoSession.Pr
         val response= GeckoResult<PromptResponse>()
 
         val builder: AlertDialog.Builder = AlertDialog.Builder(listner)
-
         builder.setMessage("confirm Resubmission?")
 
         builder.setTitle("${prompt.title}")
@@ -1193,7 +1201,88 @@ class MyPromptDelegate(listner: MainActivity2, browser: Browser):GeckoSession.Pr
         return x
     }
 
+    override fun onAuthPrompt(
+        session: GeckoSession,
+        prompt: AuthPrompt
+    ): GeckoResult<PromptResponse>? {
+        listner.notifyUser("auth prompt")
+        return super.onAuthPrompt(session, prompt)
+    }
 
+    override fun onButtonPrompt(
+        session: GeckoSession,
+        prompt: ButtonPrompt
+    ): GeckoResult<PromptResponse>? {
+
+        val response= GeckoResult<PromptResponse>()
+
+        val builder: AlertDialog.Builder = AlertDialog.Builder(listner)
+
+        builder.setMessage(prompt.message)
+
+
+        builder.setTitle("${prompt.title}")
+        builder.setCancelable(true)
+        builder.setPositiveButton("Yes",
+            DialogInterface.OnClickListener { dialog: DialogInterface?, which: Int ->
+
+                response.complete(prompt.confirm(POSITIVE))
+
+//                dialog?.cancel()
+
+            } as DialogInterface.OnClickListener)
+        builder.setNegativeButton("No", DialogInterface.OnClickListener {
+                dialog: DialogInterface?, which: Int ->
+
+            response.complete(prompt.confirm(NEGATIVE))
+//            dialog?.cancel()
+
+        }  )
+
+        val alertDialog: AlertDialog = builder.create()
+
+        alertDialog.show()
+
+        return response
+
+
+        return super.onButtonPrompt(session, prompt)
+    }
+
+    override fun onColorPrompt(
+        session: GeckoSession,
+        prompt: ColorPrompt
+    ): GeckoResult<PromptResponse>? {
+        val response= GeckoResult<PromptResponse>()
+        val builder: AlertDialog.Builder = AlertDialog.Builder(listner)
+        builder.setMessage(prompt.defaultValue)
+        builder.setTitle(prompt.title)
+        builder.setCancelable(true)
+        builder.setPositiveButton("Yes",
+            DialogInterface.OnClickListener { dialog: DialogInterface?, which: Int ->
+
+//                response.complete(prompt.confirm())
+
+
+            } as DialogInterface.OnClickListener)
+        builder.setNegativeButton("No", DialogInterface.OnClickListener {
+                dialog: DialogInterface?, which: Int ->
+
+            response.complete(prompt.dismiss())
+//            dialog?.cancel()
+
+        }  )
+
+        val alertDialog: AlertDialog = builder.create()
+
+        alertDialog.show()
+
+        return response
+
+
+
+        return super.onColorPrompt(session, prompt)
+    }
 
 
 

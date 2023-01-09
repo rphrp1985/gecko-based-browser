@@ -49,6 +49,7 @@ class DownloadFragment(listener: MainActivity2, browser: Browser, downloadDatavi
         savedInstanceState: Bundle?,
     ): View? {
 
+        listener.getDownloads()
         val binding= inflater.inflate(R.layout.fragment_download, container, false)
 
         val toolbar = binding.findViewById<Toolbar>(R.id.toolbar)

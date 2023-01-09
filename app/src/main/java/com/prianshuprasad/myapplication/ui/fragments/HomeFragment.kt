@@ -41,6 +41,8 @@ import org.mozilla.geckoview.GeckoRuntimeSettings.COLOR_SCHEME_DARK
 import org.mozilla.geckoview.GeckoSession.*
 import java.io.*
 import java.net.URL
+import java.nio.file.FileSystem
+import java.nio.file.Files
 import javax.net.ssl.HttpsURLConnection
 
 
@@ -362,10 +364,7 @@ class HomeFragment(browser: Browser, listener: MainActivity2) : Fragment() {
             y = x.build()
         }
 
-
         val geckoSession = GeckoSession(y)
-
-
 
         geckoSession.permissionDelegate = permissionDelegate
         geckoSession.promptDelegate= myPromptDelegate
@@ -662,9 +661,7 @@ class HomeFragment(browser: Browser, listener: MainActivity2) : Fragment() {
 //                        texttoArray(str,query)
 
                         Log.d("texts", "onClick: $lin2")
-                    } catch (e: IOException) {
-                        Toast.makeText(listener,"eror",Toast.LENGTH_SHORT).show()
-                    }
+                    } catch (e: IOException) { }
                 }.start()
 
             }
@@ -982,11 +979,14 @@ class HomeFragment(browser: Browser, listener: MainActivity2) : Fragment() {
 
     fun savepdf(){
 
-        listener.  PermissionManager(arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE), 9)
+        listener.PermissionManager(arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE), 9)
+        try{
         if(Build.VERSION.SDK_INT<29){
+
+
         browser.sessionList[browser.currIndex].saveAsPdf().accept {
             it?.use { input ->
-                val outputStream = FileOutputStream(File("file:///sdcard/Download/" +
+                val outputStream = FileOutputStream(File( Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)   ,
                         "${(browser.sessionList[browser.currIndex].contentDelegate as MyContentDelegate).title}.pdf"))
                 outputStream.use { output ->
                     val buffer = ByteArray(4 * 1024) // buffer size
@@ -998,10 +998,11 @@ class HomeFragment(browser: Browser, listener: MainActivity2) : Fragment() {
                     output.flush()
                 }
             }
+
+
+
         }
         }else{
-
-
                     browser.sessionList[browser.currIndex].saveAsPdf().accept {
                         try {
                         val pdfInputStream: InputStream = it!!
@@ -1038,7 +1039,9 @@ class HomeFragment(browser: Browser, listener: MainActivity2) : Fragment() {
         }
 
         Toast.makeText(listener,"Webpage saved as Pdf",Toast.LENGTH_SHORT).show()
-
+        }catch (e:Exception){
+            listener.notifyUser("Some Error Occured")
+        }
 
     }
 
