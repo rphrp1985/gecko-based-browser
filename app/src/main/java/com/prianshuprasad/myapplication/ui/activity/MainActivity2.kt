@@ -1,5 +1,17 @@
 package com.prianshuprasad.myapplication.ui.activity
 
+//import com.prianshuprasad.myapplication.Database.autocompleteDatabase.AutoCompleteData
+//import com.prianshuprasad.myapplication.Database.autocompleteDatabase.AutocompleteDataviewholder
+//import com.prianshuprasad.myapplication.Database.bookmarkDatabase.BookmarkDataviewholder
+//import com.prianshuprasad.myapplication.Database.downloadDataBase.DownloadData
+//import com.prianshuprasad.myapplication.Database.downloadDataBase.DownloadDataviewholder
+//import com.prianshuprasad.myapplication.Database.histroryDataBase.Historyviewholder
+//import com.prianshuprasad.myapplication.Database.offlinePagesDataBase.OfflinePageviewholder
+//import com.prianshuprasad.myapplication.Database.offlinePagesDataBase.offlinePage
+//import com.prianshuprasad.myapplication.Database.savedTabDatabase.SavedTabviewholder
+//import com.prianshuprasad.myapplication.Database.savedTabDatabase.savedTab
+//import com.prianshuprasad.myapplication.Database.siteDatabase.SiteData
+//import com.prianshuprasad.myapplication.Database.siteDatabase.SiteDataviewholder
 import android.Manifest
 import android.R.attr.label
 import android.annotation.SuppressLint
@@ -35,26 +47,12 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.diebietse.webpage.downloader.DefaultFileSaver
 import com.diebietse.webpage.downloader.WebpageDownloader
-import com.prianshuprasad.myapplication.utils.browser.Browser
-import com.prianshuprasad.myapplication.ui.adapter.ChoicePromptAdapter
-//import com.prianshuprasad.myapplication.Database.autocompleteDatabase.AutoCompleteData
-//import com.prianshuprasad.myapplication.Database.autocompleteDatabase.AutocompleteDataviewholder
-//import com.prianshuprasad.myapplication.Database.bookmarkDatabase.BookmarkDataviewholder
-//import com.prianshuprasad.myapplication.Database.downloadDataBase.DownloadData
-//import com.prianshuprasad.myapplication.Database.downloadDataBase.DownloadDataviewholder
-import com.prianshuprasad.myapplication.ui.fragments.*
-//import com.prianshuprasad.myapplication.Database.histroryDataBase.Historyviewholder
-//import com.prianshuprasad.myapplication.Database.offlinePagesDataBase.OfflinePageviewholder
-//import com.prianshuprasad.myapplication.Database.offlinePagesDataBase.offlinePage
-//import com.prianshuprasad.myapplication.Database.savedTabDatabase.SavedTabviewholder
-//import com.prianshuprasad.myapplication.Database.savedTabDatabase.savedTab
-import com.prianshuprasad.myapplication.utils.services.notificationServices
-//import com.prianshuprasad.myapplication.Database.siteDatabase.SiteData
-//import com.prianshuprasad.myapplication.Database.siteDatabase.SiteDataviewholder
 import com.prianshuprasad.myapplication.MyContentDelegate
 import com.prianshuprasad.myapplication.MyNavigationDelegate
 import com.prianshuprasad.myapplication.MyProgressDetegate
 import com.prianshuprasad.myapplication.R
+import com.prianshuprasad.myapplication.ui.adapter.ChoicePromptAdapter
+import com.prianshuprasad.myapplication.ui.fragments.*
 import com.prianshuprasad.myapplication.utils.Database.autocompleteDatabase.AutoCompleteData
 import com.prianshuprasad.myapplication.utils.Database.autocompleteDatabase.AutocompleteDataviewholder
 import com.prianshuprasad.myapplication.utils.Database.bookmarkDatabase.BookmarkDataviewholder
@@ -67,6 +65,8 @@ import com.prianshuprasad.myapplication.utils.Database.savedTabDatabase.SavedTab
 import com.prianshuprasad.myapplication.utils.Database.savedTabDatabase.savedTab
 import com.prianshuprasad.myapplication.utils.Database.siteDatabase.SiteData
 import com.prianshuprasad.myapplication.utils.Database.siteDatabase.SiteDataviewholder
+import com.prianshuprasad.myapplication.utils.browser.Browser
+import com.prianshuprasad.myapplication.utils.services.notificationServices
 import com.tonyodev.fetch2.*
 import com.tonyodev.fetch2.Fetch.Impl.getInstance
 import kotlinx.android.synthetic.main.item_history.*
@@ -246,7 +246,10 @@ private val queueCallback:ArrayList<GeckoSession.PermissionDelegate.Callback> = 
         val builder = VmPolicy.Builder()
         StrictMode.setVmPolicy(builder.build())
         browser = Browser()
+
+
         homeFragment= HomeFragment(browser,this)
+
 
         frameLayout= findViewById(R.id.main_activity_fragment)
 
@@ -326,7 +329,9 @@ private val queueCallback:ArrayList<GeckoSession.PermissionDelegate.Callback> = 
        }}
         downloadDataviewholder.allnotes
 
+//        launchAppChooser()
     }
+
 
     fun getDownloads(){
         fetch?.getDownloads {
@@ -371,6 +376,15 @@ private val queueCallback:ArrayList<GeckoSession.PermissionDelegate.Callback> = 
                 }
             }, 1000)
         }
+
+
+//    private fun launchAppChooser() {
+////        Log.d(TAG, "launchAppChooser()")
+//        val intent = Intent(Intent.ACTION_MAIN)
+//        intent.addCategory(Intent.CATEGORY_APP_BROWSER)
+//        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
+//        startActivity(intent)
+//    }
 
 
     fun openSettings(){
@@ -820,7 +834,7 @@ private val queueCallback:ArrayList<GeckoSession.PermissionDelegate.Callback> = 
     }
 
     // it checks whether the app the app has fingerprint permission
-    @RequiresApi(Build.VERSION_CODES.M)
+//    @RequiresApi(Build.VERSION_CODES.M)
      fun checkBiometricSupport(): Boolean {
         val keyguardManager = getSystemService(Context.KEYGUARD_SERVICE) as KeyguardManager
         if (!keyguardManager.isDeviceSecure) {
@@ -1357,7 +1371,7 @@ fun getName(url:String):String{
         prompt: DateTimePrompt,
         response: GeckoResult<GeckoSession.PromptDelegate.PromptResponse>,
         formatter: SimpleDateFormat,
-        mCalendar: Calendar
+        mCalendar: Calendar,
     ) {
         response.complete(prompt.confirm(formatter.format(mCalendar.time)))
     }
@@ -1368,7 +1382,7 @@ fun getName(url:String):String{
 
     fun ShowOnselectContextMenu(
         session: GeckoSession,
-        selection: GeckoSession.SelectionActionDelegate.Selection
+        selection: GeckoSession.SelectionActionDelegate.Selection,
     ) {
 
 

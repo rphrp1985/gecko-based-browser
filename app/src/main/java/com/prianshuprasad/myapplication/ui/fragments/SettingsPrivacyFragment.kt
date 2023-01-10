@@ -120,6 +120,11 @@ val browser=browser
             return@setOnPreferenceClickListener true
 
         }
+
+        if(Build.VERSION.SDK_INT<23){
+            biometric!!.isVisible=false
+        }
+
         biometric!!.setOnPreferenceClickListener {
 
             if(browser.settingsData.privFingerprint==0) {

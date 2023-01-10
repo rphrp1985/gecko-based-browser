@@ -40,6 +40,7 @@ import org.mozilla.geckoview.*
 import org.mozilla.geckoview.GeckoRuntimeSettings.COLOR_SCHEME_DARK
 import org.mozilla.geckoview.GeckoSession.*
 import java.io.*
+import java.net.URI
 import java.net.URL
 import java.nio.file.FileSystem
 import java.nio.file.Files
@@ -72,8 +73,15 @@ class HomeFragment(browser: Browser, listener: MainActivity2) : Fragment() {
     private lateinit var bookmark_item:MenuItem
     private lateinit var toolbar2: Toolbar
     private lateinit var findText:EditText
+    private var openings=0;
 
 
+    override fun onCreate(savedInstanceState: Bundle?) {
+        searchAdapter = SearchAdapter(this)
+        historyviewholder=  Historyviewholder(App())
+        slideUpAdapter = SlideUpAdapter(this)
+        super.onCreate(savedInstanceState)
+    }
 
 
     override fun onCreateView(
@@ -90,11 +98,8 @@ class HomeFragment(browser: Browser, listener: MainActivity2) : Fragment() {
         multifunction= binding.findViewById(R.id.multiFuntion_mode)
         progressView= binding.findViewById(R.id.page_progress)
         toolbar= binding.findViewById(R.id.toolbar)
-        searchAdapter = SearchAdapter(this)
-        historyviewholder=  Historyviewholder(App())
         slideup= binding.findViewById(R.id.sliding_layout)
         slideup_rcview = binding.findViewById(R.id.slideUpPanel_rcview)
-        slideUpAdapter = SlideUpAdapter(this)
         slideup_rcview.layoutManager= LinearLayoutManager(requireContext())
         slideup_rcview.adapter= slideUpAdapter
         toolbar2 = binding.findViewById(R.id.toolbar2)
@@ -114,6 +119,20 @@ class HomeFragment(browser: Browser, listener: MainActivity2) : Fragment() {
             openWeb(browser.currIndex)
 
         }
+
+        if(openings==0) {
+            try {
+                val url = listener.intent?.data
+                val uri = URI(url.toString())
+                if(url==null)
+                    throw  Exception("url undefined")
+
+                addNewSession(url = url.toString())
+            } catch (e: Exception) {
+            }
+            openings++
+        }
+
 
         toolbar.post {
             toolbar.inflateMenu(R.menu.home_screen_menu)
@@ -272,6 +291,16 @@ class HomeFragment(browser: Browser, listener: MainActivity2) : Fragment() {
 
         return view
     }
+
+//    override fun onDestroyView() {
+//        listener.notifyUser("view destoy")
+//        super.onDestroyView()
+//    }
+//
+//    override fun onDestroy() {
+//        listener.notifyUser("destoy")
+//        super.onDestroy()
+//    }
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
@@ -661,7 +690,7 @@ class HomeFragment(browser: Browser, listener: MainActivity2) : Fragment() {
 //                        texttoArray(str,query)
 
                         Log.d("texts", "onClick: $lin2")
-                    } catch (e: IOException) { }
+                    } catch (e: IOException) {}
                 }.start()
 
             }
